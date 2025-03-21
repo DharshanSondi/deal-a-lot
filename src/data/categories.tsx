@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Smartphone, Shirt, Home, Heart, ShoppingBag, Gamepad, Utensils, Baby, Laptop } from "lucide-react";
 import { Category } from "@/types/categories";
 
