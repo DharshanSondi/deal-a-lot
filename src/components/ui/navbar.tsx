@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
@@ -43,7 +44,9 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,6 +68,15 @@ export function Navbar() {
     const user = localStorage.getItem("user");
     setIsLoggedIn(!!user);
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      closeMenu();
+    }
+  };
 
   return (
     <header
@@ -111,17 +123,17 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center space-x-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="rounded-full"
-            asChild
-          >
-            <Link to="/search">
+          <form onSubmit={handleSearch} className="relative">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full"
+              type="submit"
+            >
               <Search className="h-5 w-5" />
               <span className="sr-only">Search</span>
-            </Link>
-          </Button>
+            </Button>
+          </form>
 
           <Button 
             variant="ghost" 
@@ -199,6 +211,23 @@ export function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden glass border-t border-border/50 animate-fade-in">
           <div className="px-4 py-3 space-y-1">
+            <form onSubmit={handleSearch} className="relative flex w-full mb-3">
+              <input
+                type="text"
+                placeholder="Search for deals..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-full border border-border bg-background/80 focus:outline-none"
+              />
+              <Button 
+                type="submit"
+                size="icon"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 rounded-full"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </form>
+            
             <NavLink 
               href="/"
               label="Home"
@@ -224,13 +253,6 @@ export function Navbar() {
               label="Compare"
               icon={<ShoppingBag className="h-4 w-4" />}
               isActive={location.pathname === '/compare'}
-              onClick={closeMenu}
-            />
-            <NavLink 
-              href="/search"
-              label="Search"
-              icon={<Search className="h-4 w-4" />}
-              isActive={location.pathname === '/search'}
               onClick={closeMenu}
             />
             <NavLink 

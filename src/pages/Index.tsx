@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { DealCard, DealProps } from "@/components/ui/deal-card";
 import { Navbar } from "@/components/ui/navbar";
@@ -11,6 +11,8 @@ export default function Index() {
   const [trendingDeals, setTrendingDeals] = useState<DealProps[]>([]);
   const [newDeals, setNewDeals] = useState<DealProps[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     // In a real app, this would be fetched from an API
@@ -23,6 +25,13 @@ export default function Index() {
       setLoaded(true);
     }, 500);
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -68,17 +77,19 @@ export default function Index() {
                 {/* Search Bar */}
                 <div className="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8">
                   <div className="w-full max-w-md mx-auto relative">
-                    <div className="glass backdrop-blur-md rounded-full flex items-center p-1 pl-4 pr-1 shadow-elegant">
+                    <form onSubmit={handleSearch} className="glass backdrop-blur-md rounded-full flex items-center p-1 pl-4 pr-1 shadow-elegant">
                       <Search className="h-4 w-4 text-muted-foreground mr-2" />
                       <input
                         type="text"
                         placeholder="Search for products, brands, etc."
                         className="bg-transparent border-none focus:outline-none flex-grow text-sm py-2 text-foreground placeholder:text-muted-foreground"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                       />
-                      <Button size="sm" className="rounded-full ml-1">
+                      <Button type="submit" size="sm" className="rounded-full ml-1">
                         Search
                       </Button>
-                    </div>
+                    </form>
                   </div>
                 </div>
               </div>

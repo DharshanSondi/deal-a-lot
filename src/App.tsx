@@ -14,6 +14,7 @@ import AuthPage from "./pages/AuthPage";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Wishlist from "./pages/Wishlist";
+import Search from "./pages/Search";
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient());
@@ -33,6 +34,7 @@ const App = () => {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/saved-deals" element={<Navigate to="/wishlist" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
