@@ -13,6 +13,7 @@ import Compare from "./pages/Compare";
 import AuthPage from "./pages/AuthPage";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Wishlist from "./pages/Wishlist";
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient());
@@ -31,6 +32,7 @@ const App = () => {
             <Route path="/compare" element={<Compare />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/wishlist" element={<Profile />} /> {/* Redirecting wishlist to profile for now */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

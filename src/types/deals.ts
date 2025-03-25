@@ -9,10 +9,10 @@ export interface Deal {
   imageUrl: string;
   platform: 'amazon' | 'flipkart' | 'meesho' | 'other';
   externalUrl: string;
+  rating: number;  // Changed from optional to required
   category?: string;
   isNew?: boolean;
   isTrending?: boolean;
-  rating?: number;
   ratingCount?: number;
   isOutOfStock?: boolean;
 }
