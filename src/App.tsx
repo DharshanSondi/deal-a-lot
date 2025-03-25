@@ -32,7 +32,7 @@ const App = () => {
             <Route path="/compare" element={<Compare />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/wishlist" element={<Profile />} /> {/* Redirecting wishlist to profile for now */}
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
