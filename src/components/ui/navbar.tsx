@@ -124,13 +124,20 @@ export function Navbar() {
 
         <div className="hidden md:flex items-center space-x-2">
           <form onSubmit={handleSearch} className="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-40 px-3 py-1 text-sm rounded-full border border-border bg-background/80 focus:outline-none"
+            />
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full"
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 h-7 w-7 rounded-full"
               type="submit"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-4 w-4" />
               <span className="sr-only">Search</span>
             </Button>
           </form>

@@ -17,9 +17,9 @@ export default function Profile() {
   const [savedDeals, setSavedDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+    name: "",
+    email: "",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
     notifications: {
       email: true,
       push: true,
@@ -35,6 +35,22 @@ export default function Profile() {
       const userSavedDeals = mockDeals.filter(deal => savedDealIds.includes(deal.id));
       setSavedDeals(userSavedDeals);
       setIsLoading(false);
+      
+      // Get user info from localStorage if available
+      const userInfo = localStorage.getItem("user");
+      if (userInfo) {
+        try {
+          const parsedUser = JSON.parse(userInfo);
+          setUser(prev => ({
+            ...prev,
+            name: parsedUser.name || "User",
+            email: parsedUser.email || "user@example.com",
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${parsedUser.name || "User"}`
+          }));
+        } catch (error) {
+          console.error("Error parsing user info:", error);
+        }
+      }
     }, 800);
   }, []);
 
@@ -82,13 +98,13 @@ export default function Profile() {
             <div className="h-24 w-24 rounded-full overflow-hidden bg-secondary/50">
               <img 
                 src={user.avatar} 
-                alt={user.name}
+                alt={user.name || "User"}
                 className="h-full w-full object-cover"
               />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">{user.name}</h1>
-              <p className="text-muted-foreground">{user.email}</p>
+              <h1 className="text-3xl font-bold">{user.name || "Welcome!"}</h1>
+              <p className="text-muted-foreground">{user.email || "No email provided"}</p>
             </div>
             <div className="md:ml-auto">
               <Button variant="outline" size="sm" onClick={handleLogout}>
