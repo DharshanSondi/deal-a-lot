@@ -1,7 +1,7 @@
 
-import { DealProps } from "@/components/ui/deal-card";
+import { Deal } from "@/types/deals";
 
-export const mockDeals: DealProps[] = [
+export const mockDeals: Deal[] = [
   {
     id: "1",
     title: "Apple iPhone 13 (128GB) - Midnight",

@@ -7,9 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import Index from "./pages/Index";
 import Deals from "./pages/Deals";
+import DealDetail from "./pages/DealDetail";
 import Categories from "./pages/Categories";
 import Compare from "./pages/Compare";
 import AuthPage from "./pages/AuthPage";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -24,9 +26,11 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/deals" element={<Deals />} />
+            <Route path="/deal/:id" element={<DealDetail />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
