@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -59,12 +58,10 @@ export function Navbar() {
   
   const handleLogout = () => {
     setIsLoggedIn(false);
-    // Clear local storage / cookies (mock logout)
     localStorage.removeItem("user");
   };
 
   useEffect(() => {
-    // Check if user is logged in
     const user = localStorage.getItem("user");
     setIsLoggedIn(!!user);
   }, []);
@@ -78,7 +75,6 @@ export function Navbar() {
       )}
     >
       <div className="container mx-auto flex items-center justify-between px-4 py-3 md:px-6">
-        {/* Logo */}
         <Link 
           to="/" 
           className="flex items-center space-x-2 font-medium focus-ring rounded-md"
@@ -91,7 +87,6 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
           <NavLink 
             href="/"
@@ -115,7 +110,6 @@ export function Navbar() {
           />
         </nav>
 
-        {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-2">
           <Button 
             variant="ghost" 
@@ -162,7 +156,7 @@ export function Navbar() {
                   Profile
                 </Link>
                 <Link 
-                  to="/saved-deals" 
+                  to="/wishlist" 
                   className="block px-4 py-2 text-sm text-foreground hover:bg-secondary/50 rounded-md mx-1"
                 >
                   Saved Deals
@@ -187,7 +181,6 @@ export function Navbar() {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
         <Button 
           variant="ghost" 
           size="icon" 
@@ -203,7 +196,6 @@ export function Navbar() {
         </Button>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden glass border-t border-border/50 animate-fade-in">
           <div className="px-4 py-3 space-y-1">
