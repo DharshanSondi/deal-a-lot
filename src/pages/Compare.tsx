@@ -1,12 +1,21 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/ui/navbar";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Star, X, Plus, ChevronDown, ChevronUp, ExternalLink, ShoppingBag } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { toast } from "@/hooks/use-toast";
+import { 
+  Star, 
+  X, 
+  Plus, 
+  ExternalLink, 
+  ShoppingBag,
+  Search,
+  Check
+} from "lucide-react";
 import { mockDeals } from "@/data/mock-deals";
 
 export default function Compare() {
@@ -20,6 +29,26 @@ export default function Compare() {
     "platform",
   ]);
   
+  // Load previously compared products from localStorage if available
+  useEffect(() => {
+    const savedComparisons = localStorage.getItem("comparedProducts");
+    if (savedComparisons) {
+      try {
+        const parsedProducts = JSON.parse(savedComparisons);
+        setSelectedProducts(parsedProducts.slice(0, 3));
+      } catch (error) {
+        console.error("Error loading saved comparisons:", error);
+      }
+    }
+  }, []);
+
+  // Save compared products to localStorage
+  useEffect(() => {
+    if (selectedProducts.length > 0) {
+      localStorage.setItem("comparedProducts", JSON.stringify(selectedProducts));
+    }
+  }, [selectedProducts]);
+  
   const filteredProducts = mockDeals.filter(
     deal => deal.title.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 5);
@@ -27,18 +56,59 @@ export default function Compare() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSearchResults(true);
+    
+    if (searchQuery.trim() && filteredProducts.length === 0) {
+      toast({
+        title: "No products found",
+        description: `We couldn't find any products matching "${searchQuery}"`,
+      });
+    }
   };
   
   const addProduct = (product: any) => {
     if (selectedProducts.length < 3) {
+      // Check if product is already in comparison
+      if (selectedProducts.some(p => p.id === product.id)) {
+        toast({
+          title: "Product already added",
+          description: "This product is already in your comparison",
+        });
+        return;
+      }
+      
       setSelectedProducts([...selectedProducts, product]);
       setSearchQuery("");
       setShowSearchResults(false);
+      
+      toast({
+        title: "Product added",
+        description: "Product added to comparison",
+      });
+    } else {
+      toast({
+        title: "Maximum products reached",
+        description: "You can compare up to 3 products at a time",
+      });
     }
   };
   
   const removeProduct = (productId: string) => {
     setSelectedProducts(selectedProducts.filter(p => p.id !== productId));
+    
+    toast({
+      title: "Product removed",
+      description: "Product removed from comparison",
+    });
+  };
+  
+  const clearComparison = () => {
+    setSelectedProducts([]);
+    localStorage.removeItem("comparedProducts");
+    
+    toast({
+      title: "Comparison cleared",
+      description: "All products have been removed from comparison",
+    });
   };
   
   const toggleFeature = (feature: string) => {
@@ -88,18 +158,19 @@ export default function Compare() {
                   className="flex-grow"
                 />
                 <Button type="submit" disabled={searchQuery.length < 3}>
+                  <Search className="h-4 w-4 mr-2" />
                   Search
                 </Button>
               </div>
             </form>
             
             {showSearchResults && searchQuery.length > 2 && (
-              <div className="bg-background rounded-lg shadow-md overflow-y-auto max-h-60 animate-fade-in">
+              <div className="bg-background/90 backdrop-blur-sm rounded-lg shadow-md overflow-y-auto max-h-60 animate-fade-in">
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map((product) => (
                     <div 
                       key={product.id}
-                      className="p-3 flex items-center gap-3 border-b border-border/50 last:border-0 hover:bg-secondary/30 cursor-pointer"
+                      className="p-3 flex items-center gap-3 border-b border-border/50 last:border-0 hover:bg-secondary/30 cursor-pointer transition-colors"
                       onClick={() => addProduct(product)}
                     >
                       <div className="w-10 h-10 rounded bg-secondary/20 overflow-hidden">
@@ -130,7 +201,19 @@ export default function Compare() {
             )}
             
             <div className="mt-4">
-              <div className="text-sm text-muted-foreground mb-2">Selected Products ({selectedProducts.length}/3)</div>
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-sm text-muted-foreground">Selected Products ({selectedProducts.length}/3)</div>
+                {selectedProducts.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={clearComparison}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    Clear All
+                  </Button>
+                )}
+              </div>
               <div className="flex flex-wrap gap-2">
                 {selectedProducts.map((product) => (
                   <Badge 
@@ -143,7 +226,10 @@ export default function Compare() {
                       variant="ghost" 
                       size="icon" 
                       className="h-4 w-4 hover:bg-destructive/10 hover:text-destructive rounded-full ml-1"
-                      onClick={() => removeProduct(product.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeProduct(product.id);
+                      }}
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -165,32 +251,44 @@ export default function Compare() {
                 <CardContent className="p-6">
                   <div className="mb-4">
                     <h3 className="font-medium mb-2">Comparison Features</h3>
-                    <div className="flex flex-wrap gap-2">
-                      <FeatureToggle 
-                        feature="price" 
-                        label="Price" 
-                        active={compareFeatures.includes("price")} 
-                        onToggle={toggleFeature} 
-                      />
-                      <FeatureToggle 
-                        feature="discount" 
-                        label="Discount" 
-                        active={compareFeatures.includes("discount")} 
-                        onToggle={toggleFeature} 
-                      />
-                      <FeatureToggle 
-                        feature="rating" 
-                        label="Rating" 
-                        active={compareFeatures.includes("rating")} 
-                        onToggle={toggleFeature} 
-                      />
-                      <FeatureToggle 
-                        feature="platform" 
-                        label="Platform" 
-                        active={compareFeatures.includes("platform")} 
-                        onToggle={toggleFeature} 
-                      />
-                    </div>
+                    <ToggleGroup type="multiple" variant="outline" className="flex flex-wrap gap-2">
+                      <ToggleGroupItem 
+                        value="price" 
+                        aria-label="Toggle price"
+                        data-state={compareFeatures.includes("price") ? "on" : "off"}
+                        onClick={() => toggleFeature("price")}
+                        className="rounded-full"
+                      >
+                        Price
+                      </ToggleGroupItem>
+                      <ToggleGroupItem 
+                        value="discount" 
+                        aria-label="Toggle discount"
+                        data-state={compareFeatures.includes("discount") ? "on" : "off"}
+                        onClick={() => toggleFeature("discount")}
+                        className="rounded-full"
+                      >
+                        Discount
+                      </ToggleGroupItem>
+                      <ToggleGroupItem 
+                        value="rating" 
+                        aria-label="Toggle rating"
+                        data-state={compareFeatures.includes("rating") ? "on" : "off"}
+                        onClick={() => toggleFeature("rating")}
+                        className="rounded-full"
+                      >
+                        Rating
+                      </ToggleGroupItem>
+                      <ToggleGroupItem 
+                        value="platform" 
+                        aria-label="Toggle platform"
+                        data-state={compareFeatures.includes("platform") ? "on" : "off"}
+                        onClick={() => toggleFeature("platform")}
+                        className="rounded-full"
+                      >
+                        Platform
+                      </ToggleGroupItem>
+                    </ToggleGroup>
                   </div>
                 </CardContent>
               </Card>
@@ -277,28 +375,6 @@ export default function Compare() {
   );
 }
 
-interface FeatureToggleProps {
-  feature: string;
-  label: string;
-  active: boolean;
-  onToggle: (feature: string) => void;
-}
-
-function FeatureToggle({ feature, label, active, onToggle }: FeatureToggleProps) {
-  return (
-    <button
-      onClick={() => onToggle(feature)}
-      className={`px-3 py-1.5 rounded-full text-sm transition-all duration-300 ${
-        active 
-          ? "bg-primary/10 text-primary" 
-          : "bg-secondary/50 text-muted-foreground"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
 interface ComparisonCardProps {
   product: any;
   features: string[];
@@ -328,7 +404,7 @@ function ComparisonCard({ product, features, onRemove }: ComparisonCardProps) {
   };
 
   return (
-    <div className="bg-card rounded-xl overflow-hidden shadow-elegant">
+    <div className="bg-card rounded-xl overflow-hidden shadow-elegant hover:shadow-elegant-lg transition-all">
       <div className="relative aspect-[3/2] bg-secondary/30">
         <img
           src={product.imageUrl}
@@ -338,8 +414,11 @@ function ComparisonCard({ product, features, onRemove }: ComparisonCardProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 rounded-full glass backdrop-blur-sm"
-          onClick={onRemove}
+          className="absolute top-2 right-2 rounded-full glass backdrop-blur-sm hover:bg-destructive/10 hover:text-destructive"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
         >
           <X className="h-4 w-4" />
         </Button>
@@ -354,7 +433,7 @@ function ComparisonCard({ product, features, onRemove }: ComparisonCardProps) {
       </div>
       
       <div className="p-4">
-        <h3 className="font-medium line-clamp-2 mb-2">{product.title}</h3>
+        <h3 className="font-medium line-clamp-2 mb-2 h-12">{product.title}</h3>
         
         <div className="space-y-3">
           {features.includes("price") && (
@@ -398,6 +477,18 @@ function ComparisonCard({ product, features, onRemove }: ComparisonCardProps) {
               </div>
             </div>
           )}
+          
+          {features.includes("platform") && (
+            <div>
+              <div className="text-xs text-muted-foreground mb-1">Platform</div>
+              <Badge 
+                variant="outline" 
+                className={`${getPlatformColor(product.platform)} border-0`}
+              >
+                {product.platform.charAt(0).toUpperCase() + product.platform.slice(1)}
+              </Badge>
+            </div>
+          )}
         </div>
         
         <div className="mt-4">
@@ -437,7 +528,7 @@ function ComparisonSummary({ products }: ComparisonSummaryProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="bg-secondary/20 rounded-xl p-4">
+      <div className="bg-secondary/20 rounded-xl p-4 hover:bg-secondary/30 transition-colors">
         <div className="flex justify-between items-start mb-2">
           <h4 className="font-medium">Best Price</h4>
           <Badge 
@@ -464,7 +555,7 @@ function ComparisonSummary({ products }: ComparisonSummaryProps) {
         </div>
       </div>
       
-      <div className="bg-secondary/20 rounded-xl p-4">
+      <div className="bg-secondary/20 rounded-xl p-4 hover:bg-secondary/30 transition-colors">
         <div className="flex justify-between items-start mb-2">
           <h4 className="font-medium">Highest Discount</h4>
           <Badge 
@@ -494,7 +585,7 @@ function ComparisonSummary({ products }: ComparisonSummaryProps) {
         </div>
       </div>
       
-      <div className="bg-secondary/20 rounded-xl p-4">
+      <div className="bg-secondary/20 rounded-xl p-4 hover:bg-secondary/30 transition-colors">
         <div className="flex justify-between items-start mb-2">
           <h4 className="font-medium">Highest Rated</h4>
           <div className="flex items-center">
