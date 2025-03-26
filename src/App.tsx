@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import Index from "./pages/Index";
 import Deals from "./pages/Deals";
@@ -18,14 +18,40 @@ import Wishlist from "./pages/Wishlist";
 import Search from "./pages/Search";
 
 const App = () => {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000, // 1 minute
+        retry: 1,
+        refetchOnWindowFocus: false,
+      },
+    },
+  }));
+
+  // Get user's preferred theme
+  const getPreferredTheme = (): "system" | "dark" | "light" => {
+    const savedTheme = localStorage.getItem("discounthub-theme");
+    if (savedTheme && ["dark", "light", "system"].includes(savedTheme)) {
+      return savedTheme as "system" | "dark" | "light";
+    }
+    return "system";
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system">
+      <ThemeProvider defaultTheme={getPreferredTheme()}>
         <TooltipProvider>
           <Toaster />
-          <Sonner />
+          <Sonner 
+            position="bottom-right"
+            toastOptions={{
+              classNames: {
+                toast: "group glass shadow-elegant border border-border",
+                title: "font-medium",
+                description: "text-muted-foreground",
+              }
+            }}
+          />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
