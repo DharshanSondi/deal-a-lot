@@ -14,13 +14,14 @@ import {
   ExternalLink, 
   ShoppingBag,
   Search,
-  Check
+  Loader2
 } from "lucide-react";
-import { mockDeals } from "@/data/mock-deals";
+import { Deal } from "@/types/deals";
+import { fetchDealsFromAllPlatforms, getProductExternalUrl } from "@/utils/e-commerce-apis";
 
 export default function Compare() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<Deal[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [compareFeatures, setCompareFeatures] = useState<string[]>([
     "price",
@@ -28,6 +29,8 @@ export default function Compare() {
     "rating",
     "platform",
   ]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<Deal[]>([]);
   
   // Load previously compared products from localStorage if available
   useEffect(() => {
@@ -49,23 +52,54 @@ export default function Compare() {
     }
   }, [selectedProducts]);
   
-  const filteredProducts = mockDeals.filter(
-    deal => deal.title.toLowerCase().includes(searchQuery.toLowerCase())
-  ).slice(0, 5);
-  
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (searchQuery.trim().length < 3) {
+      toast({
+        title: "Search query too short",
+        description: "Please enter at least 3 characters to search",
+      });
+      return;
+    }
+    
+    setIsSearching(true);
     setShowSearchResults(true);
     
-    if (searchQuery.trim() && filteredProducts.length === 0) {
+    try {
+      const response = await fetchDealsFromAllPlatforms(searchQuery, 5);
+      
+      if (response.success) {
+        setSearchResults(response.deals);
+        
+        if (response.deals.length === 0) {
+          toast({
+            title: "No products found",
+            description: `We couldn't find any products matching "${searchQuery}"`,
+          });
+        }
+      } else {
+        toast({
+          title: "Error searching products",
+          description: response.error || "Failed to search for products",
+          variant: "destructive",
+        });
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
       toast({
-        title: "No products found",
-        description: `We couldn't find any products matching "${searchQuery}"`,
+        title: "Search failed",
+        description: "An unexpected error occurred while searching",
+        variant: "destructive",
       });
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
     }
   };
   
-  const addProduct = (product: any) => {
+  const addProduct = (product: Deal) => {
     if (selectedProducts.length < 3) {
       // Check if product is already in comparison
       if (selectedProducts.some(p => p.id === product.id)) {
@@ -136,7 +170,7 @@ export default function Compare() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Compare Products</h1>
             <p className="text-muted-foreground">
-              Compare prices and features across different platforms
+              Compare prices and features across different platforms in real-time
             </p>
           </div>
           
@@ -149,25 +183,32 @@ export default function Compare() {
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
-                    if (e.target.value.length > 2) {
-                      setShowSearchResults(true);
-                    } else {
+                    if (e.target.value.length === 0) {
                       setShowSearchResults(false);
                     }
                   }}
                   className="flex-grow"
                 />
-                <Button type="submit" disabled={searchQuery.length < 3}>
-                  <Search className="h-4 w-4 mr-2" />
+                <Button type="submit" disabled={isSearching || searchQuery.length < 3}>
+                  {isSearching ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4 mr-2" />
+                  )}
                   Search
                 </Button>
               </div>
             </form>
             
-            {showSearchResults && searchQuery.length > 2 && (
+            {showSearchResults && (
               <div className="bg-background/90 backdrop-blur-sm rounded-lg shadow-md overflow-y-auto max-h-60 animate-fade-in">
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((product) => (
+                {isSearching ? (
+                  <div className="p-4 text-center">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Searching across platforms...</p>
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  searchResults.map((product) => (
                     <div 
                       key={product.id}
                       className="p-3 flex items-center gap-3 border-b border-border/50 last:border-0 hover:bg-secondary/30 cursor-pointer transition-colors"
@@ -376,7 +417,7 @@ export default function Compare() {
 }
 
 interface ComparisonCardProps {
-  product: any;
+  product: Deal;
   features: string[];
   onRemove: () => void;
 }
@@ -493,7 +534,7 @@ function ComparisonCard({ product, features, onRemove }: ComparisonCardProps) {
         
         <div className="mt-4">
           <Button size="sm" className="w-full rounded-full" asChild>
-            <a href={product.externalUrl} target="_blank" rel="noopener noreferrer">
+            <a href={getProductExternalUrl(product)} target="_blank" rel="noopener noreferrer">
               View Deal
               <ExternalLink className="ml-1 h-3 w-3" />
             </a>
@@ -505,7 +546,7 @@ function ComparisonCard({ product, features, onRemove }: ComparisonCardProps) {
 }
 
 interface ComparisonSummaryProps {
-  products: any[];
+  products: Deal[];
 }
 
 function ComparisonSummary({ products }: ComparisonSummaryProps) {
