@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,12 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, EyeOff, Eye } from "lucide-react";
+import { Mail, Lock, User, EyeOff, Eye, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
 export function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [socialAuthInProgress, setSocialAuthInProgress] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -30,6 +33,55 @@ export function AuthForm() {
     confirmPassword: "",
   });
 
+  // Animation variants
+  const formVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.5,
+        ease: "easeOut",
+        staggerChildren: 0.1,
+        delayChildren: 0.1
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -20,
+      transition: { duration: 0.3 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -10 }
+  };
+
+  useEffect(() => {
+    // Check for auth redirect response
+    const handleAuthRedirect = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (data.session) {
+        toast({
+          title: "Login successful",
+          description: "Welcome to DiscountHub!",
+        });
+        navigate("/");
+      } else if (error && window.location.hash.includes("error")) {
+        toast({
+          title: "Authentication failed",
+          description: error.message || "Please try again",
+          variant: "destructive",
+        });
+      }
+    };
+
+    handleAuthRedirect();
+  }, [navigate, toast]);
+
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setLoginForm((prev) => ({ ...prev, [name]: value }));
@@ -45,22 +97,27 @@ export function AuthForm() {
     setIsLoading(true);
     
     try {
-      // Mock authentication - in a real app, this would call an API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
       if (isLogin) {
         // Validate login
         if (!loginForm.email || !loginForm.password) {
           throw new Error("Please fill in all fields");
         }
         
-        // Mock successful login
-        localStorage.setItem("user", JSON.stringify({ email: loginForm.email }));
+        // Perform Supabase login
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: loginForm.email,
+          password: loginForm.password,
+        });
+        
+        if (error) throw error;
         
         toast({
           title: "Login successful",
           description: "Welcome back to DiscountHub!",
         });
+
+        // Redirect to home page after successful auth
+        navigate("/");
       } else {
         // Validate registration
         if (!registerForm.name || !registerForm.email || !registerForm.password) {
@@ -75,20 +132,27 @@ export function AuthForm() {
           throw new Error("Password must be at least 6 characters");
         }
         
-        // Mock successful registration and auto-login
-        localStorage.setItem("user", JSON.stringify({ 
-          name: registerForm.name,
-          email: registerForm.email 
-        }));
+        // Perform Supabase registration
+        const { data, error } = await supabase.auth.signUp({
+          email: registerForm.email,
+          password: registerForm.password,
+          options: {
+            data: {
+              full_name: registerForm.name,
+            },
+          },
+        });
+        
+        if (error) throw error;
         
         toast({
           title: "Registration successful",
           description: "Your account has been created",
         });
+        
+        // Redirect to home page after successful auth
+        navigate("/");
       }
-      
-      // Redirect to home page after successful auth
-      navigate("/");
     } catch (error: any) {
       toast({
         title: "Authentication failed",
@@ -97,6 +161,30 @@ export function AuthForm() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSocialAuth = async (provider: 'google' | 'facebook') => {
+    try {
+      setSocialAuthInProgress(true);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth`,
+        },
+      });
+      
+      if (error) throw error;
+      
+      // The user will be redirected to the provider's auth page
+    } catch (error: any) {
+      toast({
+        title: "Authentication failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+      setSocialAuthInProgress(false);
     }
   };
 
@@ -109,13 +197,19 @@ export function AuthForm() {
         </TabsList>
         
         <TabsContent value="login">
-          <form onSubmit={handleSubmit}>
+          <motion.form 
+            onSubmit={handleSubmit}
+            variants={formVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
               <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
+              <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="login-email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -130,8 +224,8 @@ export function AuthForm() {
                     required
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+              <motion.div className="space-y-2" variants={itemVariants}>
                 <div className="flex justify-between">
                   <Label htmlFor="login-password">Password</Label>
                   <a href="#" className="text-xs text-primary hover:underline">Forgot password?</a>
@@ -162,15 +256,20 @@ export function AuthForm() {
                     )}
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             </CardContent>
             <CardFooter className="flex flex-col">
               <Button 
                 type="submit" 
                 className="w-full rounded-full" 
-                disabled={isLoading}
+                disabled={isLoading || socialAuthInProgress}
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : "Sign In"}
               </Button>
               <div className="relative mt-6 w-full">
                 <div className="absolute inset-0 flex items-center">
@@ -182,8 +281,17 @@ export function AuthForm() {
                   </span>
                 </div>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-2 w-full">
-                <Button variant="outline" className="rounded-full" type="button">
+              <motion.div 
+                className="mt-4 grid grid-cols-2 gap-2 w-full"
+                variants={itemVariants}
+              >
+                <Button 
+                  variant="outline" 
+                  className="rounded-full" 
+                  type="button"
+                  onClick={() => handleSocialAuth('google')}
+                  disabled={isLoading || socialAuthInProgress}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="h-4 w-4 mr-2 text-[#4285F4]">
                     <path fill="#4285F4" d="M15.845 8.196c0-.541-.049-1.062-.139-1.564H8.096v2.955h4.351a3.728 3.728 0 0 1-1.613 2.442v2.03h2.61c1.525-1.405 2.401-3.473 2.401-5.863z" />
                     <path fill="#34A853" d="M8.096 16c2.188 0 4.01-.726 5.348-1.941l-2.61-2.03c-.725.483-1.647.77-2.738.77-2.106 0-3.891-1.422-4.529-3.334H.957v2.094A8.002 8.002 0 0 0 8.096 16z" />
@@ -192,25 +300,38 @@ export function AuthForm() {
                   </svg>
                   Google
                 </Button>
-                <Button variant="outline" className="rounded-full" type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="h-4 w-4 mr-2">
-                    <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z" />
+                <Button 
+                  variant="outline" 
+                  className="rounded-full" 
+                  type="button"
+                  onClick={() => handleSocialAuth('facebook')}
+                  disabled={isLoading || socialAuthInProgress}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="h-4 w-4 mr-2 text-[#1877F2]">
+                    <path fill="#1877F2" d="M15 8a7 7 0 0 0-7-7 7 7 0 0 0-1.094 13.915v-4.892H5.13V8h1.777V6.458c0-1.754 1.045-2.724 2.644-2.724.766 0 1.567.137 1.567.137v1.723h-.883c-.87 0-1.141.54-1.141 1.093V8h1.941l-.31 2.023H9.094v4.892A7.001 7.001 0 0 0 15 8z" />
+                    <path fill="#ffffff" d="M10.725 10.023L11.035 8H9.094V6.687c0-.553.272-1.093 1.141-1.093h.883V3.87s-.801-.137-1.567-.137c-1.6 0-2.644.97-2.644 2.724V8H5.13v2.023h1.777v4.892a7.037 7.037 0 0 0 2.188 0v-4.892h1.63z" />
                   </svg>
                   Facebook
                 </Button>
-              </div>
+              </motion.div>
             </CardFooter>
-          </form>
+          </motion.form>
         </TabsContent>
         
         <TabsContent value="register">
-          <form onSubmit={handleSubmit}>
+          <motion.form 
+            onSubmit={handleSubmit}
+            variants={formVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center">Create an Account</CardTitle>
               <CardDescription className="text-center">Enter your details to create your account</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
+              <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="register-name">Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -224,8 +345,8 @@ export function AuthForm() {
                     required
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+              <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="register-email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -240,8 +361,8 @@ export function AuthForm() {
                     required
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+              <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="register-password">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -269,8 +390,8 @@ export function AuthForm() {
                     )}
                   </Button>
                 </div>
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+              <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="register-confirm-password">Confirm Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -285,8 +406,8 @@ export function AuthForm() {
                     required
                   />
                 </div>
-              </div>
-              <div className="flex items-center space-x-2">
+              </motion.div>
+              <motion.div className="flex items-center space-x-2" variants={itemVariants}>
                 <input
                   type="checkbox"
                   id="terms"
@@ -296,18 +417,66 @@ export function AuthForm() {
                 <label htmlFor="terms" className="text-sm text-muted-foreground">
                   I agree to the <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
                 </label>
-              </div>
+              </motion.div>
             </CardContent>
             <CardFooter className="flex-col space-y-4">
               <Button 
                 type="submit" 
                 className="w-full rounded-full"
-                disabled={isLoading}
+                disabled={isLoading || socialAuthInProgress}
               >
-                {isLoading ? "Creating account..." : "Create Account"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : "Create Account"}
               </Button>
+              <div className="relative mt-2 w-full">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="px-2 bg-background text-muted-foreground">
+                    Or sign up with
+                  </span>
+                </div>
+              </div>
+              <motion.div 
+                className="grid grid-cols-2 gap-2 w-full"
+                variants={itemVariants}
+              >
+                <Button 
+                  variant="outline" 
+                  className="rounded-full" 
+                  type="button"
+                  onClick={() => handleSocialAuth('google')}
+                  disabled={isLoading || socialAuthInProgress}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="h-4 w-4 mr-2 text-[#4285F4]">
+                    <path fill="#4285F4" d="M15.845 8.196c0-.541-.049-1.062-.139-1.564H8.096v2.955h4.351a3.728 3.728 0 0 1-1.613 2.442v2.03h2.61c1.525-1.405 2.401-3.473 2.401-5.863z" />
+                    <path fill="#34A853" d="M8.096 16c2.188 0 4.01-.726 5.348-1.941l-2.61-2.03c-.725.483-1.647.77-2.738.77-2.106 0-3.891-1.422-4.529-3.334H.957v2.094A8.002 8.002 0 0 0 8.096 16z" />
+                    <path fill="#FBBC05" d="M3.567 9.465a4.783 4.783 0 0 1-.252-1.514c0-.526.091-1.036.252-1.514V4.342H.957a8.02 8.02 0 0 0 0 7.218l2.61-2.095z" />
+                    <path fill="#EA4335" d="M8.096 3.618c1.188 0 2.255.408 3.096 1.21l2.314-2.314C12.108.953 10.286.151 8.096.151A7.998 7.998 0 0 0 .957 4.342l2.61 2.095c.638-1.912 2.423-3.334 4.529-3.334z" />
+                  </svg>
+                  Google
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="rounded-full" 
+                  type="button"
+                  onClick={() => handleSocialAuth('facebook')}
+                  disabled={isLoading || socialAuthInProgress}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="h-4 w-4 mr-2 text-[#1877F2]">
+                    <path fill="#1877F2" d="M15 8a7 7 0 0 0-7-7 7 7 0 0 0-1.094 13.915v-4.892H5.13V8h1.777V6.458c0-1.754 1.045-2.724 2.644-2.724.766 0 1.567.137 1.567.137v1.723h-.883c-.87 0-1.141.54-1.141 1.093V8h1.941l-.31 2.023H9.094v4.892A7.001 7.001 0 0 0 15 8z" />
+                    <path fill="#ffffff" d="M10.725 10.023L11.035 8H9.094V6.687c0-.553.272-1.093 1.141-1.093h.883V3.87s-.801-.137-1.567-.137c-1.6 0-2.644.97-2.644 2.724V8H5.13v2.023h1.777v4.892a7.037 7.037 0 0 0 2.188 0v-4.892h1.63z" />
+                  </svg>
+                  Facebook
+                </Button>
+              </motion.div>
             </CardFooter>
-          </form>
+          </motion.form>
         </TabsContent>
       </Tabs>
     </Card>
