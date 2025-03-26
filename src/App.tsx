@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import Index from "./pages/Index";
@@ -52,21 +52,19 @@ const App = () => {
               }
             }}
           />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/deals" element={<Deals />} />
-              <Route path="/deal/:id" element={<DealDetail />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/compare" element={<Compare />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/saved-deals" element={<Navigate to="/wishlist" replace />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/deals" element={<Deals />} />
+            <Route path="/deal/:id" element={<DealDetail />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/compare" element={<Compare />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/saved-deals" element={<Navigate to="/wishlist" replace />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
