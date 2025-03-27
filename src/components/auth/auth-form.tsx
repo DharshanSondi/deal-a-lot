@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, EyeOff, Eye, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,7 +18,7 @@ export function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [socialAuthInProgress, setSocialAuthInProgress] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast: shadcnToast } = useToast();
 
   // Login form state
   const [loginForm, setLoginForm] = useState({
@@ -65,22 +66,33 @@ export function AuthForm() {
       const { data, error } = await supabase.auth.getSession();
       
       if (data.session) {
-        toast({
-          title: "Login successful",
-          description: "Welcome to DiscountHub!",
+        toast.success("Login successful", {
+          description: "Welcome to DiscountHub!"
         });
         navigate("/");
       } else if (error && window.location.hash.includes("error")) {
-        toast({
-          title: "Authentication failed",
-          description: error.message || "Please try again",
-          variant: "destructive",
+        toast.error("Authentication failed", {
+          description: error.message || "Please try again"
         });
       }
     };
 
     handleAuthRedirect();
-  }, [navigate, toast]);
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          toast.success("Login successful", {
+            description: "Welcome to DiscountHub!"
+          });
+          navigate("/");
+        }
+      }
+    );
+    
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -103,17 +115,22 @@ export function AuthForm() {
           throw new Error("Please fill in all fields");
         }
         
+        console.log("Attempting login with:", loginForm.email);
+        
         // Perform Supabase login
         const { data, error } = await supabase.auth.signInWithPassword({
           email: loginForm.email,
           password: loginForm.password,
         });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Login error:", error);
+          throw error;
+        }
         
-        toast({
-          title: "Login successful",
-          description: "Welcome back to DiscountHub!",
+        console.log("Login successful:", data);
+        toast.success("Login successful", {
+          description: "Welcome back to DiscountHub!"
         });
 
         // Redirect to home page after successful auth
@@ -132,6 +149,8 @@ export function AuthForm() {
           throw new Error("Password must be at least 6 characters");
         }
         
+        console.log("Attempting registration with:", registerForm.email);
+        
         // Perform Supabase registration
         const { data, error } = await supabase.auth.signUp({
           email: registerForm.email,
@@ -143,21 +162,38 @@ export function AuthForm() {
           },
         });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Registration error:", error);
+          throw error;
+        }
         
-        toast({
-          title: "Registration successful",
-          description: "Your account has been created",
-        });
+        console.log("Registration response:", data);
         
-        // Redirect to home page after successful auth
-        navigate("/");
+        if (data?.user?.identities?.length === 0) {
+          // User already exists
+          toast.error("Registration failed", {
+            description: "This email is already registered. Please login instead."
+          });
+          setIsLogin(true);
+        } else {
+          toast.success("Registration successful", {
+            description: "Your account has been created. You may need to verify your email before logging in."
+          });
+          
+          // Clear form and switch to login tab
+          setRegisterForm({
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+          });
+          setIsLogin(true);
+        }
       }
     } catch (error: any) {
-      toast({
-        title: "Authentication failed",
-        description: error.message || "Please try again",
-        variant: "destructive",
+      console.error("Auth error:", error);
+      toast.error("Authentication failed", {
+        description: error.message || "Please try again"
       });
     } finally {
       setIsLoading(false);
@@ -168,6 +204,8 @@ export function AuthForm() {
     try {
       setSocialAuthInProgress(true);
       
+      console.log(`Attempting ${provider} login`);
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -175,14 +213,17 @@ export function AuthForm() {
         },
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error(`${provider} auth error:`, error);
+        throw error;
+      }
       
+      console.log(`${provider} auth initiated:`, data);
       // The user will be redirected to the provider's auth page
     } catch (error: any) {
-      toast({
-        title: "Authentication failed",
-        description: error.message || "Please try again",
-        variant: "destructive",
+      console.error(`${provider} auth failed:`, error);
+      toast.error("Authentication failed", {
+        description: error.message || "Please try again"
       });
       setSocialAuthInProgress(false);
     }

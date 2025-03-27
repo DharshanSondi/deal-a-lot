@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { TourGuide } from "@/components/onboarding/TourGuide";
 import Index from "./pages/Index";
 import Deals from "./pages/Deals";
 import DealDetail from "./pages/DealDetail";
@@ -52,6 +53,7 @@ const App = () => {
               }
             }}
           />
+          <TourGuide />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/deals" element={<Deals />} />
