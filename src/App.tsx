@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { TourGuide } from "@/components/onboarding/TourGuide";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import Index from "./pages/Index";
 import Deals from "./pages/Deals";
 import DealDetail from "./pages/DealDetail";
@@ -38,6 +39,27 @@ const App = () => {
       // We'll let the TourGuide component handle the tour
       localStorage.setItem("discounthub-tour-enabled", "true");
     }
+  }, []);
+
+  // Set up auth state listener at the app level
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed in App:", event);
+        
+        if (event === 'SIGNED_IN' && session) {
+          toast.success("Login successful", {
+            description: "Welcome to DiscountHub!"
+          });
+        } else if (event === 'SIGNED_OUT') {
+          toast.info("Signed out successfully");
+        }
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Get user's preferred theme

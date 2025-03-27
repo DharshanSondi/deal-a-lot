@@ -14,6 +14,7 @@ import {
   BarChart3,
   LogOut,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NavLinkProps {
   href: string;
@@ -57,17 +58,39 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Check initial auth state
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+    
+    checkUser();
+    
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed in navbar:", event, !!session);
+        setIsLoggedIn(!!session);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const closeMenu = () => setIsMenuOpen(false);
   
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem("user");
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setIsLoggedIn(false);
+      navigate('/');
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    setIsLoggedIn(!!user);
-  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
