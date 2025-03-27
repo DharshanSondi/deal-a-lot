@@ -7,6 +7,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { TourGuide } from "@/components/onboarding/TourGuide";
+import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Deals from "./pages/Deals";
 import DealDetail from "./pages/DealDetail";
@@ -29,6 +30,16 @@ const App = () => {
     },
   }));
 
+  // Check if user has seen the tour
+  useEffect(() => {
+    // Try to detect first-time users
+    const hasSeenTour = localStorage.getItem("discounthub-tour-completed");
+    if (!hasSeenTour) {
+      // We'll let the TourGuide component handle the tour
+      localStorage.setItem("discounthub-tour-enabled", "true");
+    }
+  }, []);
+
   // Get user's preferred theme
   const getPreferredTheme = (): "system" | "dark" | "light" => {
     const savedTheme = localStorage.getItem("discounthub-theme");
@@ -50,7 +61,8 @@ const App = () => {
                 toast: "group glass shadow-elegant border border-border",
                 title: "font-medium",
                 description: "text-muted-foreground",
-              }
+              },
+              duration: 4000,
             }}
           />
           <TourGuide />
