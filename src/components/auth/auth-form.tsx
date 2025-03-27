@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,13 +21,11 @@ export function AuthForm() {
   const navigate = useNavigate();
   const { toast: shadcnToast } = useToast();
 
-  // Login form state
   const [loginForm, setLoginForm] = useState({
     email: "",
     password: "",
   });
 
-  // Register form state
   const [registerForm, setRegisterForm] = useState({
     name: "",
     email: "",
@@ -36,7 +33,6 @@ export function AuthForm() {
     confirmPassword: "",
   });
 
-  // Animation variants
   const formVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -71,7 +67,6 @@ export function AuthForm() {
   }, [isLogin, loginForm.email, loginForm.password, registerForm.email, registerForm.password]);
 
   useEffect(() => {
-    // Check for auth redirect response
     const handleAuthRedirect = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
@@ -95,7 +90,6 @@ export function AuthForm() {
 
     handleAuthRedirect();
     
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event, session);
@@ -128,14 +122,12 @@ export function AuthForm() {
     
     try {
       if (isLogin) {
-        // Validate login
         if (!loginForm.email || !loginForm.password) {
           throw new Error("Please fill in all fields");
         }
         
         console.log("Attempting login with:", loginForm.email);
         
-        // Perform Supabase login
         const { data, error } = await supabase.auth.signInWithPassword({
           email: loginForm.email,
           password: loginForm.password,
@@ -156,10 +148,8 @@ export function AuthForm() {
           description: "Welcome back to DiscountHub!"
         });
 
-        // Redirect to home page after successful auth
         navigate("/");
       } else {
-        // Validate registration
         if (!registerForm.name || !registerForm.email || !registerForm.password) {
           throw new Error("Please fill in all fields");
         }
@@ -176,7 +166,6 @@ export function AuthForm() {
         
         console.log("Attempting registration with:", registerForm.email);
         
-        // Perform Supabase registration
         const { data, error } = await supabase.auth.signUp({
           email: registerForm.email,
           password: registerForm.password,
@@ -196,7 +185,6 @@ export function AuthForm() {
         console.log("Registration response:", data);
         
         if (data?.user?.identities?.length === 0) {
-          // User already exists
           setErrorMessage("This email is already registered. Please login instead.");
           toast.error("Registration failed", {
             description: "This email is already registered. Please login instead."
@@ -207,7 +195,6 @@ export function AuthForm() {
             description: "Your account has been created. You may need to verify your email before logging in."
           });
           
-          // Clear form and switch to login tab
           setRegisterForm({
             name: "",
             email: "",
@@ -248,7 +235,6 @@ export function AuthForm() {
       }
       
       console.log(`${provider} auth initiated:`, data);
-      // The user will be redirected to the provider's auth page
     } catch (error: any) {
       console.error(`${provider} auth failed:`, error);
       toast.error("Authentication failed", {
