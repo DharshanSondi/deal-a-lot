@@ -19,6 +19,9 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Wishlist from "./pages/Wishlist";
 import Search from "./pages/Search";
+import ContactUs from "./pages/ContactUs";
+import HelpCenter from "./pages/HelpCenter";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient({
@@ -98,6 +101,9 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/help-center" element={<HelpCenter />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/saved-deals" element={<Navigate to="/wishlist" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

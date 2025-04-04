@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { X, ArrowRight, CheckCircle } from 'lucide-react';
+import { X, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 
@@ -113,20 +113,7 @@ export function TourGuide() {
     }
   }, [isOpen, currentStep]);
   
-  const handleNext = () => {
-    if (currentStep < tourSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      handleComplete();
-    }
-  };
-  
   const handleComplete = () => {
-    setIsOpen(false);
-    localStorage.setItem('tourCompleted', 'true');
-  };
-  
-  const handleSkip = () => {
     setIsOpen(false);
     localStorage.setItem('tourCompleted', 'true');
   };
@@ -134,13 +121,12 @@ export function TourGuide() {
   if (!isOpen) return null;
   
   const step = tourSteps[currentStep];
-  const isLastStep = currentStep === tourSteps.length - 1;
   
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          <div className="fixed inset-0 bg-black/50 z-50" onClick={handleSkip} />
+          <div className="fixed inset-0 bg-black/50 z-50" onClick={handleComplete} />
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -157,7 +143,7 @@ export function TourGuide() {
               variant="ghost" 
               size="icon" 
               className="absolute right-2 top-2" 
-              onClick={handleSkip}
+              onClick={handleComplete}
             >
               <X size={16} />
             </Button>
@@ -179,29 +165,15 @@ export function TourGuide() {
                 ))}
               </div>
               
-              <div className="flex space-x-2">
-                <Button variant="ghost" size="sm" onClick={handleSkip}>
-                  Skip
-                </Button>
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  onClick={handleNext}
-                  className="flex items-center"
-                >
-                  {isLastStep ? (
-                    <>
-                      Finish
-                      <CheckCircle className="ml-1 h-4 w-4" />
-                    </>
-                  ) : (
-                    <>
-                      Next
-                      <ArrowRight className="ml-1 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleComplete}
+                className="flex items-center"
+              >
+                Get Started
+                <CheckCircle className="ml-1 h-4 w-4" />
+              </Button>
             </div>
           </motion.div>
         </>
