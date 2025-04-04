@@ -82,10 +82,10 @@ export default function AuthPage() {
               >
                 <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200 flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                  Email Verification Required
+                  Email Verification
                 </h4>
                 <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
-                  When registering, you'll need to verify your email. Please check your inbox for a verification code, which you'll need to enter to complete registration.
+                  When registering, we'll send a verification code to your email. Please enter this code to complete your registration and keep your account secure.
                 </p>
               </motion.div>
             </motion.div>

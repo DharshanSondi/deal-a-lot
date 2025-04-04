@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,7 +66,8 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           data: {
             full_name: form.name,
           },
-          emailRedirectTo: window.location.origin + '/auth',
+          emailRedirectTo: window.location.origin,
+          captchaToken: "disabled",
         },
       });
       
@@ -86,7 +86,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         });
         onSuccess();
       } else {
-        // Show OTP verification form if needed
         if (data?.user && !data.session) {
           setIsVerifying(true);
           toast.info("Verification code sent", {
