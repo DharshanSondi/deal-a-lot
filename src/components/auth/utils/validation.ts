@@ -17,5 +17,11 @@ export function validateRegistration(form: {
     return "Password must be at least 6 characters";
   }
   
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(form.email)) {
+    return "Please enter a valid email address";
+  }
+  
   return null;
 }
