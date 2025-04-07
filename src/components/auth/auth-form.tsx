@@ -33,9 +33,7 @@ export function AuthForm() {
           navigate("/");
         } else if (error && window.location.hash.includes("error")) {
           console.error("Auth redirect error:", error);
-          toast({
-            variant: "destructive",
-            title: "Authentication failed",
+          toast.error("Authentication failed", {
             description: error.message || "Please try again",
           });
         }
