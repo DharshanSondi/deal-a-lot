@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
             className="prose prose-lg dark:prose-invert mx-auto"
           >
             <h1 className="text-center">Privacy Policy</h1>
-            <p>Last Updated: April 4, 2025</p>
+            <p>Last Updated: April 7, 2025</p>
             
             <h2>1. Introduction</h2>
             <p>
@@ -108,8 +108,8 @@ export default function PrivacyPolicy() {
               If you have any questions about this Privacy Policy, please contact us:
             </p>
             <ul>
-              <li>By email: dharshansondi.dev@gmail.com</li>
-              <li>By phone: +91 8341164263</li>
+              <li>By email: discounthub.dev@gmail.com</li>
+              <li>By phone: 8341164263</li>
             </ul>
           </motion.div>
         </div>

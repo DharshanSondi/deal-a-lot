@@ -14,7 +14,7 @@ interface SocialAuthButtonsProps {
 export function SocialAuthButtons({ isLoading, onAuthStart }: SocialAuthButtonsProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSocialAuth = async (provider: 'google' | 'facebook') => {
+  const handleSocialAuth = async (provider: 'google') => {
     try {
       onAuthStart();
       setErrorMessage(null);
@@ -45,12 +45,12 @@ export function SocialAuthButtons({ isLoading, onAuthStart }: SocialAuthButtonsP
 
   return (
     <motion.div 
-      className="grid grid-cols-2 gap-2 w-full"
+      className="w-full"
       variants={itemVariants}
     >
       <Button 
         variant="outline" 
-        className="rounded-full" 
+        className="w-full rounded-full" 
         type="button"
         onClick={() => handleSocialAuth('google')}
         disabled={isLoading}
@@ -61,20 +61,7 @@ export function SocialAuthButtons({ isLoading, onAuthStart }: SocialAuthButtonsP
           <path fill="#FBBC05" d="M3.567 9.465a4.783 4.783 0 0 1-.252-1.514c0-.526.091-1.036.252-1.514V4.342H.957a8.02 8.02 0 0 0 0 7.218l2.61-2.095z" />
           <path fill="#EA4335" d="M8.096 3.618c1.188 0 2.255.408 3.096 1.21l2.314-2.314C12.108.953 10.286.151 8.096.151A7.998 7.998 0 0 0 .957 4.342l2.61 2.095c.638-1.912 2.423-3.334 4.529-3.334z" />
         </svg>
-        Google
-      </Button>
-      <Button 
-        variant="outline" 
-        className="rounded-full" 
-        type="button"
-        onClick={() => handleSocialAuth('facebook')}
-        disabled={isLoading}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="h-4 w-4 mr-2 text-[#1877F2]">
-          <path fill="#1877F2" d="M15 8a7 7 0 0 0-7-7 7 7 0 0 0-1.094 13.915v-4.892H5.13V8h1.777V6.458c0-1.754 1.045-2.724 2.644-2.724.766 0 1.567.137 1.567.137v1.723h-.883c-.87 0-1.141.54-1.141 1.093V8h1.941l-.31 2.023H9.094v4.892A7.001 7.001 0 0 0 15 8z" />
-          <path fill="#ffffff" d="M10.725 10.023L11.035 8H9.094V6.687c0-.553.272-1.093 1.141-1.093h.883V3.87s-.801-.137-1.567-.137c-1.6 0-2.644.97-2.644 2.724V8H5.13v2.023h1.777v4.892a7.037 7.037 0 0 0 2.188 0v-4.892h1.63z" />
-        </svg>
-        Facebook
+        Continue with Google
       </Button>
     </motion.div>
   );

@@ -64,7 +64,7 @@ export default function ContactUs() {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">dharshansondi.dev@gmail.com</p>
+                      <p className="font-medium">discounthub.dev@gmail.com</p>
                     </div>
                   </div>
                   
@@ -74,7 +74,7 @@ export default function ContactUs() {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Phone</p>
-                      <p className="font-medium">+91 8341164263</p>
+                      <p className="font-medium">8341164263</p>
                     </div>
                   </div>
                   

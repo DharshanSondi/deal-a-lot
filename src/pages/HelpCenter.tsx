@@ -43,6 +43,18 @@ export default function HelpCenter() {
     {
       question: "Does DiscountHub sell products directly?",
       answer: "No, DiscountHub does not sell products directly. We simply provide information about deals and redirect you to the respective e-commerce platforms to complete your purchase."
+    },
+    {
+      question: "How do I create an account on DiscountHub?",
+      answer: "Creating an account is simple. Click on the 'Login' button in the navigation bar, then select the 'Register' tab. Enter your name, email, and password, agree to the terms, and click 'Create Account'. You'll be instantly logged in and ready to use all features."
+    },
+    {
+      question: "What should I do if I forget my password?",
+      answer: "If you forget your password, go to the Login page and click on 'Forgot password?' link. Enter your email address, and we'll send you instructions to reset your password."
+    },
+    {
+      question: "How secure is my information on DiscountHub?",
+      answer: "We take security very seriously. Your password is encrypted and we use industry-standard security protocols to protect your data. We never share your personal information with third parties without your consent."
     }
   ];
 

@@ -62,9 +62,8 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           data: {
             full_name: form.name,
           },
-          // Set auto confirm to true to bypass email verification
+          // Remove captcha and set autoconfirm to true
           emailRedirectTo: window.location.origin,
-          captchaToken: "disabled",
         },
       });
       
