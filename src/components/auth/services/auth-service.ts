@@ -14,11 +14,24 @@ export async function registerUser(email: string, password: string, name: string
         data: {
           full_name: name,
         },
+        // Important: Do not include captchaToken or emailRedirectTo
+        // as these can trigger captcha verification requirements
       },
     });
     
     if (error) {
       console.error("Registration error:", error);
+      
+      if (error.message.includes("captcha")) {
+        toast.error("Registration failed", {
+          description: "Please try again later or contact support."
+        });
+      } else {
+        toast.error("Registration failed", {
+          description: error.message || "Please try again."
+        });
+      }
+      
       throw error;
     }
     
@@ -45,6 +58,8 @@ export async function registerUser(email: string, password: string, name: string
     
     if (error.message.includes("duplicate key")) {
       errorMessage = "This email is already registered. Please login instead.";
+    } else if (error.message.includes("captcha")) {
+      errorMessage = "Registration service is temporarily unavailable. Please try again later.";
     }
     
     toast.error("Registration failed", {

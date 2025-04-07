@@ -17,6 +17,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(true); // Default to true for smooth registration
   const navigate = useNavigate();
   
   const [form, setForm] = useState({
@@ -45,7 +46,14 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       const validationError = validateRegistration(form);
       if (validationError) {
         setErrorMessage(validationError);
-        throw new Error(validationError);
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!termsAccepted) {
+        setErrorMessage("You must agree to the Terms of Service and Privacy Policy");
+        setIsLoading(false);
+        return;
       }
       
       // Register user
@@ -88,7 +96,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         togglePasswordVisibility={togglePasswordVisibility}
       />
       
-      <TermsCheckbox />
+      <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} />
       
       <SubmitButton isLoading={isLoading} />
     </motion.form>
