@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,11 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FormAlert } from "./form-alert";
 import { itemVariants } from "./animation-variants";
 import { toast } from "sonner";
-import { 
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { useNavigate } from "react-router-dom";
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -22,9 +19,8 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
-
+  const navigate = useNavigate();
+  
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -66,6 +62,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           data: {
             full_name: form.name,
           },
+          // Set auto confirm to true to bypass email verification
           emailRedirectTo: window.location.origin,
           captchaToken: "disabled",
         },
@@ -84,26 +81,21 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         toast.error("Registration failed", {
           description: "This email is already registered. Please login instead."
         });
-        onSuccess();
+        onSuccess(); // Switch to login tab
       } else {
-        if (data?.user && !data.session) {
-          setIsVerifying(true);
-          toast.info("Verification code sent", {
-            description: "Please check your email for the verification code"
-          });
-        } else {
-          toast.success("Registration successful", {
-            description: "Your account has been created and you're now logged in."
-          });
-          
-          setForm({
-            name: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-          });
-          onSuccess();
-        }
+        toast.success("Registration successful", {
+          description: "Your account has been created and you're now logged in."
+        });
+        
+        setForm({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+        
+        // Redirect to home page after successful registration
+        navigate("/");
       }
     } catch (error: any) {
       console.error("Auth error:", error);
@@ -114,102 +106,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       setIsLoading(false);
     }
   };
-
-  const handleVerifyOTP = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: form.email,
-        token: verificationCode,
-        type: 'signup'
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success("Email verified", {
-        description: "Your account has been verified and you're now logged in."
-      });
-      
-      setForm({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
-      onSuccess();
-    } catch (error: any) {
-      console.error("Verification error:", error);
-      toast.error("Verification failed", {
-        description: error.message || "Please check the code and try again"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isVerifying) {
-    return (
-      <motion.div 
-        className="space-y-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <div className="space-y-2 text-center">
-          <h3 className="text-lg font-medium">Verify your email</h3>
-          <p className="text-sm text-muted-foreground">
-            We've sent a verification code to {form.email}
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="otp">Verification Code</Label>
-            <div className="flex justify-center">
-              <InputOTP
-                maxLength={6}
-                value={verificationCode}
-                onChange={setVerificationCode}
-                render={({ slots }) => (
-                  <InputOTPGroup>
-                    {slots.map((slot, index) => (
-                      <InputOTPSlot key={index} {...slot} index={index} />
-                    ))}
-                  </InputOTPGroup>
-                )}
-              />
-            </div>
-          </div>
-
-          <Button 
-            onClick={handleVerifyOTP} 
-            className="w-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
-            disabled={isLoading || verificationCode.length < 6}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
-              </>
-            ) : "Verify Email"}
-          </Button>
-
-          <div className="text-center">
-            <Button
-              variant="link"
-              className="text-sm text-muted-foreground"
-              onClick={() => setIsVerifying(false)}
-              disabled={isLoading}
-            >
-              Go back to registration
-            </Button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
 
   return (
     <motion.form 

@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { LoginForm } from "./login-form";
@@ -12,13 +11,13 @@ import { RegisterForm } from "./register-form";
 import { SocialAuthButtons } from "./social-auth-buttons";
 import { AuthDivider } from "./divider";
 import { formVariants } from "./animation-variants";
+import { toast } from "sonner";
 
 export function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [socialAuthInProgress, setSocialAuthInProgress] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   // Check for auth state changes and handle redirects
   useEffect(() => {
@@ -28,8 +27,7 @@ export function AuthForm() {
         
         if (data.session) {
           console.log("Session found:", data.session);
-          toast({
-            title: "Login successful",
+          toast.success("Login successful", {
             description: "Welcome to DiscountHub!",
           });
           navigate("/");
@@ -52,8 +50,7 @@ export function AuthForm() {
       (event, session) => {
         console.log("Auth state changed:", event, session);
         if (event === 'SIGNED_IN' && session) {
-          toast({
-            title: "Login successful",
+          toast.success("Login successful", {
             description: "Welcome to DiscountHub!",
           });
           navigate("/");
@@ -62,7 +59,7 @@ export function AuthForm() {
     );
     
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate]);
 
   return (
     <Card className="glass border-0 shadow-elegant mx-auto w-full max-w-md">

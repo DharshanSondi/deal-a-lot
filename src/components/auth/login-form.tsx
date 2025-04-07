@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FormAlert } from "./form-alert";
 import { itemVariants } from "./animation-variants";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -18,6 +19,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
   
   const [form, setForm] = useState({
     email: "",
@@ -61,7 +63,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         description: "Welcome back to DiscountHub!"
       });
 
-      onSuccess();
+      // Redirect to home page after successful login
+      navigate("/");
     } catch (error: any) {
       console.error("Auth error:", error);
       toast.error("Authentication failed", {
