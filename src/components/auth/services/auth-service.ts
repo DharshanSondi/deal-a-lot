@@ -6,7 +6,7 @@ export async function registerUser(email: string, password: string, name: string
   console.log("Attempting registration with:", email);
   
   try {
-    // Disable captcha completely by using the admin signup approach
+    // Use a simplified signup approach without captcha
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -15,6 +15,7 @@ export async function registerUser(email: string, password: string, name: string
           full_name: name,
         },
         emailRedirectTo: window.location.origin,
+        captchaToken: null // Explicitly tell Supabase not to use captcha
       },
     });
     
