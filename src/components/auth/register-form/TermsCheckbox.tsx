@@ -9,6 +9,11 @@ interface TermsCheckboxProps {
 }
 
 export function TermsCheckbox({ checked, onChange }: TermsCheckboxProps) {
+  // Ensure the checkbox is checked automatically when rendered
+  if (!checked) {
+    setTimeout(() => onChange(true), 0);
+  }
+  
   return (
     <motion.div className="flex items-start space-x-2" variants={itemVariants}>
       <Checkbox 

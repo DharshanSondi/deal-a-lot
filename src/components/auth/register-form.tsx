@@ -17,7 +17,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [termsAccepted, setTermsAccepted] = useState(true); // Default to true for smooth registration
+  const [termsAccepted, setTermsAccepted] = useState(true); // Default to true for automatic acceptance
   const navigate = useNavigate();
   
   const [form, setForm] = useState({
@@ -40,6 +40,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
     
     try {
       // Validate form
@@ -50,10 +51,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         return;
       }
       
+      // Make sure terms are always accepted
       if (!termsAccepted) {
-        setErrorMessage("You must agree to the Terms of Service and Privacy Policy");
-        setIsLoading(false);
-        return;
+        setTermsAccepted(true);
       }
       
       // Register user
