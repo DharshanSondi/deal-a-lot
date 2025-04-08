@@ -17,7 +17,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [termsAccepted, setTermsAccepted] = useState(true); // Always true by default
+  const [termsAccepted, setTermsAccepted] = useState(true); // Always accepted by default
   const navigate = useNavigate();
   
   const [form, setForm] = useState({
@@ -51,7 +51,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         return;
       }
       
-      // Force terms to be accepted
+      // Always ensure terms are accepted
       if (!termsAccepted) {
         setTermsAccepted(true);
       }
