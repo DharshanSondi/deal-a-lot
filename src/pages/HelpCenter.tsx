@@ -4,66 +4,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, ArrowRight, HelpCircle, FileText, ShieldCheck, Mail } from "lucide-react";
 import { motion } from "framer-motion";
+import { Search, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function HelpCenter() {
   const [searchQuery, setSearchQuery] = useState("");
-
-  const faqs = [
-    {
-      question: "How does DiscountHub work?",
-      answer: "DiscountHub is a platform that aggregates deals and discounts from multiple e-commerce platforms like Amazon, Flipkart, and Meesho. We use advanced algorithms to find the best deals and present them in one convenient place, helping you save time and money."
-    },
-    {
-      question: "Is DiscountHub free to use?",
-      answer: "Yes, DiscountHub is completely free to use. We don't charge any fees for finding deals or comparing prices across platforms."
-    },
-    {
-      question: "How do I save deals to my wishlist?",
-      answer: "To save deals to your wishlist, you need to create an account or sign in if you already have one. Once signed in, you can click the heart icon on any deal to save it to your wishlist. You can access your saved deals anytime from the Wishlist page."
-    },
-    {
-      question: "Are the deals updated in real-time?",
-      answer: "Yes, we strive to provide the most up-to-date deals from all supported platforms. Our system regularly checks for new deals and removes expired ones to ensure you always have access to active discounts."
-    },
-    {
-      question: "How can I compare prices across different platforms?",
-      answer: "You can use our Compare feature to see prices for the same or similar products across Amazon, Flipkart, and Meesho. Simply search for a product and click on the Compare option to see a side-by-side comparison of prices and features."
-    },
-    {
-      question: "Can I get notifications for price drops?",
-      answer: "Yes, after creating an account, you can set price alerts for specific products. We'll notify you via email when the price drops below your specified threshold."
-    },
-    {
-      question: "How do I report an issue with a deal?",
-      answer: "If you encounter any issues with a deal, such as an incorrect price or an expired deal still showing as active, please use our Contact Us page to report the problem. We appreciate your feedback as it helps us improve our service."
-    },
-    {
-      question: "Does DiscountHub sell products directly?",
-      answer: "No, DiscountHub does not sell products directly. We simply provide information about deals and redirect you to the respective e-commerce platforms to complete your purchase."
-    },
-    {
-      question: "How do I create an account on DiscountHub?",
-      answer: "Creating an account is simple. Click on the 'Login' button in the navigation bar, then select the 'Register' tab. Enter your name, email, and password, agree to the terms, and click 'Create Account'. You'll be instantly logged in and ready to use all features."
-    },
-    {
-      question: "What should I do if I forget my password?",
-      answer: "If you forget your password, go to the Login page and click on 'Forgot password?' link. Enter your email address, and we'll send you instructions to reset your password."
-    },
-    {
-      question: "How secure is my information on DiscountHub?",
-      answer: "We take security very seriously. Your password is encrypted and we use industry-standard security protocols to protect your data. We never share your personal information with third parties without your consent."
-    }
-  ];
-
-  const filteredFaqs = searchQuery.trim() === "" 
-    ? faqs 
-    : faqs.filter(faq => 
-        faq.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-      );
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,112 +25,110 @@ export default function HelpCenter() {
           >
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Help Center</h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Find answers to commonly asked questions and learn how to make the most of DiscountHub.
+              Find answers to frequently asked questions and learn how to make the most of DiscountHub.
             </p>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="relative mb-10"
-          >
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for answers..."
-              className="pl-10 py-6 text-base rounded-full"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-12"
-          >
-            <h2 className="text-2xl font-semibold mb-6">Frequently Asked Questions</h2>
             
-            {filteredFaqs.length > 0 ? (
-              <Accordion type="single" collapsible className="space-y-4">
-                {filteredFaqs.map((faq, index) => (
-                  <AccordionItem 
-                    key={index} 
-                    value={`faq-${index}`}
-                    className="border border-border rounded-lg px-4"
-                  >
-                    <AccordionTrigger className="text-left font-medium py-4">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground pb-4">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            ) : (
-              <div className="text-center py-8 border border-border rounded-lg">
-                <HelpCircle className="mx-auto h-10 w-10 text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-medium">No results found</h3>
-                <p className="text-muted-foreground">
-                  We couldn't find any FAQs matching your search.
-                </p>
-              </div>
-            )}
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <h2 className="text-2xl font-semibold mb-6">Additional Resources</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Link to="/privacy-policy" className="block">
-                <div className="border border-border rounded-lg p-6 hover:border-primary transition-colors">
-                  <ShieldCheck className="h-8 w-8 text-primary mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Privacy Policy</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Learn about how we handle your data and privacy.
-                  </p>
-                  <div className="flex items-center text-primary text-sm font-medium">
-                    View Policy
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </div>
-                </div>
-              </Link>
-              
-              <Link to="/terms-of-service" className="block">
-                <div className="border border-border rounded-lg p-6 hover:border-primary transition-colors">
-                  <FileText className="h-8 w-8 text-primary mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Terms of Service</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Review our terms and conditions of use.
-                  </p>
-                  <div className="flex items-center text-primary text-sm font-medium">
-                    View Terms
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </div>
-                </div>
-              </Link>
-              
-              <Link to="/contact-us" className="block">
-                <div className="border border-border rounded-lg p-6 hover:border-primary transition-colors">
-                  <Mail className="h-8 w-8 text-primary mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Contact Support</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Can't find what you need? Reach out to our team.
-                  </p>
-                  <div className="flex items-center text-primary text-sm font-medium">
-                    Contact Us
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </div>
-                </div>
-              </Link>
+            <div className="relative max-w-md mx-auto mt-8">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search help articles..."
+                className="pl-10 rounded-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <h2 className="text-2xl font-semibold mb-4">Frequently Asked Questions</h2>
+                
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger>How do I save deals to my wishlist?</AccordionTrigger>
+                    <AccordionContent>
+                      To save a deal to your wishlist, simply click on the heart icon on any deal card. You'll need to be logged in to save deals. You can view all your saved deals in the "Wishlist" section accessible from the navigation menu.
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-2">
+                    <AccordionTrigger>Do you offer price alerts?</AccordionTrigger>
+                    <AccordionContent>
+                      Yes! You can set up price alerts for any product you're interested in. When the price drops below your target, we'll send you a notification. To set up a price alert, view a product and click on "Track Price" button.
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-3">
+                    <AccordionTrigger>How do I filter deals by platform?</AccordionTrigger>
+                    <AccordionContent>
+                      On the deals page, you'll find filter options on the left side. You can filter by platform (Amazon, Flipkart, Meesho), discount percentage, price range, categories, and more to find exactly what you're looking for.
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-4">
+                    <AccordionTrigger>Are the discounts shown real-time?</AccordionTrigger>
+                    <AccordionContent>
+                      Yes, we constantly update our deals to ensure the prices and discounts shown are accurate and up-to-date. However, prices on e-commerce websites can change quickly, so we recommend always checking the final price before completing your purchase.
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-5">
+                    <AccordionTrigger>How can I change my account settings?</AccordionTrigger>
+                    <AccordionContent>
+                      After logging in, click on your profile icon in the navigation bar and select "Profile." From there, you can update your personal information, change your password, manage notification preferences, and adjust other account settings.
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </motion.div>
+            </div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="space-y-6"
+            >
+              <div className="bg-card rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-medium mb-3">Still need help?</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Can't find what you're looking for? Our support team is here to help!
+                </p>
+                <Button className="w-full" asChild>
+                  <Link to="/contact-us">
+                    <Mail className="mr-2 h-4 w-4" />
+                    Contact Support
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="bg-card rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-medium mb-3">Popular Topics</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <a href="#" className="text-sm text-primary hover:underline">How to compare products</a>
+                  </li>
+                  <li>
+                    <a href="#" className="text-sm text-primary hover:underline">Creating a user account</a>
+                  </li>
+                  <li>
+                    <a href="#" className="text-sm text-primary hover:underline">Understanding coupon codes</a>
+                  </li>
+                  <li>
+                    <a href="#" className="text-sm text-primary hover:underline">Getting personalized recommendations</a>
+                  </li>
+                  <li>
+                    <a href="#" className="text-sm text-primary hover:underline">Using deal filters effectively</a>
+                  </li>
+                </ul>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </div>

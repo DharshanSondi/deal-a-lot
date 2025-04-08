@@ -1,6 +1,7 @@
 
 import { motion } from "framer-motion";
 import { itemVariants } from "../animation-variants";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface TermsCheckboxProps {
   checked: boolean;
@@ -9,18 +10,21 @@ interface TermsCheckboxProps {
 
 export function TermsCheckbox({ checked, onChange }: TermsCheckboxProps) {
   return (
-    <motion.div className="flex items-center space-x-2" variants={itemVariants}>
-      <input
-        type="checkbox"
-        id="terms"
-        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+    <motion.div className="flex items-start space-x-2" variants={itemVariants}>
+      <Checkbox 
+        id="terms" 
         checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        required
+        onCheckedChange={onChange}
+        className="mt-1"
       />
-      <label htmlFor="terms" className="text-sm text-muted-foreground">
-        I agree to the <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
-      </label>
+      <div className="grid gap-1.5 leading-none">
+        <label
+          htmlFor="terms"
+          className="text-sm text-muted-foreground cursor-pointer"
+        >
+          I agree to the <a href="/privacy-policy" className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</a>
+        </label>
+      </div>
     </motion.div>
   );
 }
