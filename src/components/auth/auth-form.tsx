@@ -21,28 +21,36 @@ export function AuthForm() {
 
   // Check for auth state changes and handle redirects
   useEffect(() => {
-    const handleAuthRedirect = async () => {
+    const checkForRedirectSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
         
         if (data.session) {
-          console.log("Session found:", data.session);
+          console.log("Active session found:", data.session);
           toast.success("Login successful", {
             description: "Welcome to DiscountHub!",
           });
           navigate("/");
-        } else if (error && window.location.hash.includes("error")) {
-          console.error("Auth redirect error:", error);
-          toast.error("Authentication failed", {
-            description: error.message || "Please try again",
-          });
+        } else {
+          console.log("No active session found");
+          
+          // Check for redirect errors in URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const errorDescription = urlParams.get('error_description');
+          
+          if (errorDescription) {
+            console.error("Auth redirect error:", errorDescription);
+            toast.error("Authentication failed", {
+              description: errorDescription || "Please try again",
+            });
+          }
         }
       } catch (err) {
         console.error("Error checking session:", err);
       }
     };
 
-    handleAuthRedirect();
+    checkForRedirectSession();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {

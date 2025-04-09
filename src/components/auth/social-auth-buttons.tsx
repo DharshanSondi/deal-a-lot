@@ -25,12 +25,18 @@ export function SocialAuthButtons({ isLoading, onAuthStart }: SocialAuthButtonsP
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth`,
+          queryParams: {
+            prompt: 'select_account', // Force Google to show account selector
+          },
         },
       });
       
       if (error) {
         console.error(`${provider} auth error:`, error);
         setErrorMessage(`${provider} authentication failed: ${error.message}`);
+        toast.error("Authentication failed", {
+          description: error.message || "Please try again"
+        });
         throw error;
       }
       
