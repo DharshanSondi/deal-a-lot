@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/ui/navbar";
 import { DealCard, DealProps } from "@/components/ui/deal-card";
@@ -9,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import { fetchDealsFromAllPlatforms } from "@/utils/e-commerce-apis";
+import { fetchDealsFromAllPlatforms } from "@/utils/api";
 import { toast } from "@/hooks/use-toast";
 
 export default function Deals() {
