@@ -1,0 +1,27 @@
+
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - supabase
+
+  supabase:
+    image: supabase/supabase-local:latest
+    ports:
+      - "54321:54321"
+      - "54322:54322"
+    volumes:
+      - ./backend/supabase:/app/supabase
+    environment:
+      - POSTGRES_PASSWORD=postgres

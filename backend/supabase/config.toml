@@ -1,0 +1,23 @@
+
+# This is an example Supabase configuration file
+
+[api]
+port = 8000
+schemas = ["public", "storage", "extensions"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 5432
+
+[studio]
+port = 8001
+
+[auth]
+site_url = "http://localhost:8080"
+additional_redirect_urls = ["https://localhost:8080"]
+autoconfirm = true
+disable_signup = false
+
+[storage]
+file_size_limit = "52428800"

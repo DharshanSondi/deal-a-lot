@@ -1,69 +1,73 @@
-# Welcome to your Lovable project
 
-## Project info
+# DiscountHub - Deal Finder App
 
-**URL**: https://lovable.dev/projects/9846f892-0935-4d42-9da4-9238b28d6d00
+DiscountHub aggregates the best deals from Amazon, Flipkart, Meesho and more to help you save time and money on your online shopping.
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
+The project is divided into two main parts:
 
-**Use Lovable**
+- **frontend**: React application built with Vite, TypeScript, and Tailwind CSS
+- **backend**: Supabase functions and configuration
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9846f892-0935-4d42-9da4-9238b28d6d00) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend Development
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The frontend will be available at http://localhost:8080
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Backend Development
 
-**Use GitHub Codespaces**
+The backend uses Supabase for authentication, database, and serverless functions.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+#### Local Supabase Development
 
-## What technologies are used for this project?
+1. Install Supabase CLI
+2. Start local Supabase instance:
 
-This project is built with .
+```bash
+supabase start
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Deployment Options
 
-## How can I deploy this project?
+### Frontend Deployment
 
-Simply open [Lovable](https://lovable.dev/projects/9846f892-0935-4d42-9da4-9238b28d6d00) and click on Share -> Publish.
+The project includes configuration files for multiple deployment platforms:
 
-## I want to use a custom domain - is that possible?
+- **Netlify**: Use the `netlify.toml` configuration
+- **Vercel**: Use the `vercel.json` configuration
+- **Firebase**: Use the `firebase.json` configuration
+- **Docker**: Use the included `Dockerfile` and `nginx.conf`
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+### Backend Deployment
+
+Deploy Supabase functions using the Supabase CLI:
+
+```bash
+supabase functions deploy
+```
+
+## Docker Deployment
+
+To run both frontend and backend using Docker:
+
+```bash
+docker-compose up
+```
+
+## Authentication
+
+The app uses Supabase Authentication with:
+- Email/Password sign up and login
+- Google OAuth integration
+
+## License
+
+MIT
