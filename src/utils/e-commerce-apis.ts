@@ -1,5 +1,5 @@
-
 import { Deal } from "@/types/deals";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ApiResponse {
   success: boolean;
@@ -7,33 +7,40 @@ interface ApiResponse {
   error?: string;
 }
 
-// This function aggregates deals from multiple platforms
+// This function fetches real deals from our edge function that aggregates deals from multiple platforms
 export async function fetchDealsFromAllPlatforms(
   query: string = "",
-  limit: number = 10
+  limit: number = 50,
+  platform: string = "",
+  category: string = ""
 ): Promise<ApiResponse> {
   try {
-    console.log("Fetching deals with query:", query, "limit:", limit);
+    console.log("Fetching deals with query:", query, "limit:", limit, "platform:", platform, "category:", category);
     
-    // In a production environment, these API calls would be made from a backend
-    // to keep API keys secure. For this demo, we're simulating the responses.
-    const [amazonDeals, flipkartDeals, meeshoDeals] = await Promise.all([
-      fetchAmazonDeals(query, limit),
-      fetchFlipkartDeals(query, limit),
-      fetchMeeshoDeals(query, limit),
-    ]);
+    // Call the Supabase edge function to get deals
+    const { data, error } = await supabase.functions.invoke("get-deals", {
+      body: {
+        query,
+        limit,
+        platform,
+        category
+      }
+    });
 
-    const allDeals = [
-      ...amazonDeals.deals,
-      ...flipkartDeals.deals,
-      ...meeshoDeals.deals,
-    ].slice(0, limit);
+    if (error) {
+      console.error("Error calling get-deals function:", error);
+      return {
+        success: false,
+        deals: [],
+        error: "Failed to fetch deals from platforms. Please try again later."
+      };
+    }
 
-    console.log("Fetched deals:", allDeals.length);
+    console.log("Fetched deals:", data.deals.length);
     
     return {
       success: true,
-      deals: allDeals,
+      deals: data.deals,
     };
   } catch (error) {
     console.error("Error fetching deals:", error);
@@ -45,169 +52,102 @@ export async function fetchDealsFromAllPlatforms(
   }
 }
 
-// Simulated Amazon API (in real implementation, this would call the Amazon API)
-async function fetchAmazonDeals(
+// Fallback to fetch mock data if the edge function fails
+async function fetchMockDeals(
   query: string = "",
-  limit: number = 5
+  limit: number = 10,
+  platform: string = ""
 ): Promise<ApiResponse> {
-  console.log("Fetching Amazon deals with query:", query);
+  console.log("Falling back to mock deals with query:", query);
   
-  // Simulate API delay to mimic real API call
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // In a real implementation, this would make an actual API call to Amazon
-  // For example: const response = await fetch(`https://amazon-api.example.com/deals?query=${query}&limit=${limit}`);
-  
-  try {
-    const deals: Deal[] = Array.from({ length: limit }).map((_, index) => {
-      const randomDiscount = Math.floor(Math.random() * 50) + 10;
-      const originalPrice = Math.floor(Math.random() * 10000) + 1000;
-      const discountedPrice = Math.round(originalPrice * (100 - randomDiscount) / 100);
-      
-      return {
-        id: `amazon-${Date.now()}-${index}`,
-        title: query
-          ? `Amazon ${query} Item ${index + 1}`
-          : `Amazon Best Deal ${index + 1}`,
-        description: "This is an amazing deal from Amazon with fast delivery options!",
-        originalPrice: originalPrice,
-        discountedPrice: discountedPrice,
-        discountPercentage: randomDiscount,
-        imageUrl: `https://picsum.photos/seed/amazon${Date.now()}${index}/400/300`,
-        platform: "amazon",
-        externalUrl: "https://www.amazon.in",
-        rating: Math.floor(Math.random() * 2) + 3 + Math.random(),
-        ratingCount: Math.floor(Math.random() * 1000) + 100,
-        isNew: Math.random() > 0.7,
-        isTrending: Math.random() > 0.8,
-        category: ["Electronics", "Fashion", "Home", "Books", "Toys"][Math.floor(Math.random() * 5)],
-      };
-    });
-
-    console.log("Amazon deals fetched:", deals.length);
-
-    return {
-      success: true,
-      deals,
-    };
-  } catch (error) {
-    console.error("Error fetching Amazon deals:", error);
-    return {
-      success: false,
-      deals: [],
-      error: "Failed to fetch deals from Amazon. Please try again later.",
-    };
-  }
-}
-
-// Simulated Flipkart API
-async function fetchFlipkartDeals(
-  query: string = "",
-  limit: number = 5
-): Promise<ApiResponse> {
-  console.log("Fetching Flipkart deals with query:", query);
-  
-  // Simulate API delay to mimic real API call
+  // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 800));
-
-  // In a real implementation, this would make an actual API call to Flipkart
-  // For example: const response = await fetch(`https://flipkart-api.example.com/deals?query=${query}&limit=${limit}`);
   
   try {
-    const deals: Deal[] = Array.from({ length: limit }).map((_, index) => {
-      const randomDiscount = Math.floor(Math.random() * 40) + 15;
-      const originalPrice = Math.floor(Math.random() * 8000) + 2000;
-      const discountedPrice = Math.round(originalPrice * (100 - randomDiscount) / 100);
-      
-      return {
-        id: `flipkart-${Date.now()}-${index}`,
-        title: query
-          ? `Flipkart ${query} Item ${index + 1}`
-          : `Flipkart Special Deal ${index + 1}`,
-        description: "Exclusive Flipkart deal with additional bank offers!",
-        originalPrice: originalPrice,
-        discountedPrice: discountedPrice,
-        discountPercentage: randomDiscount,
-        imageUrl: `https://picsum.photos/seed/flipkart${Date.now()}${index}/400/300`,
-        platform: "flipkart",
-        externalUrl: "https://www.flipkart.com",
-        rating: Math.floor(Math.random() * 2) + 3 + Math.random(),
-        ratingCount: Math.floor(Math.random() * 2000) + 500,
-        isNew: Math.random() > 0.6,
-        isTrending: Math.random() > 0.7,
-        category: ["Electronics", "Fashion", "Home", "Kitchen", "Beauty"][Math.floor(Math.random() * 5)],
-      };
-    });
-
-    console.log("Flipkart deals fetched:", deals.length);
-
+    const dealsByPlatform = {
+      amazon: generateMockDeals("amazon", query, limit),
+      flipkart: generateMockDeals("flipkart", query, limit),
+      meesho: generateMockDeals("meesho", query, limit)
+    };
+    
+    let allDeals = [];
+    
+    if (platform) {
+      // If platform is specified, only get deals from that platform
+      allDeals = dealsByPlatform[platform as keyof typeof dealsByPlatform] || [];
+    } else {
+      // Otherwise get deals from all platforms
+      allDeals = [
+        ...dealsByPlatform.amazon,
+        ...dealsByPlatform.flipkart,
+        ...dealsByPlatform.meesho
+      ];
+    }
+    
+    // Filter by search query if provided
+    if (query) {
+      allDeals = allDeals.filter(deal => 
+        deal.title.toLowerCase().includes(query.toLowerCase()) || 
+        (deal.description && deal.description.toLowerCase().includes(query.toLowerCase()))
+      );
+    }
+    
     return {
       success: true,
-      deals,
+      deals: allDeals.slice(0, limit),
     };
   } catch (error) {
-    console.error("Error fetching Flipkart deals:", error);
+    console.error("Error fetching mock deals:", error);
     return {
       success: false,
       deals: [],
-      error: "Failed to fetch deals from Flipkart. Please try again later.",
+      error: "Failed to fetch mock deals. Please try again later.",
     };
   }
 }
 
-// Simulated Meesho API
-async function fetchMeeshoDeals(
-  query: string = "",
-  limit: number = 5
-): Promise<ApiResponse> {
-  console.log("Fetching Meesho deals with query:", query);
-  
-  // Simulate API delay to mimic real API call
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
-  // In a real implementation, this would make an actual API call to Meesho
-  // For example: const response = await fetch(`https://meesho-api.example.com/deals?query=${query}&limit=${limit}`);
-  
-  try {
-    const deals: Deal[] = Array.from({ length: limit }).map((_, index) => {
-      const randomDiscount = Math.floor(Math.random() * 60) + 20;
-      const originalPrice = Math.floor(Math.random() * 3000) + 500;
-      const discountedPrice = Math.round(originalPrice * (100 - randomDiscount) / 100);
-      
-      return {
-        id: `meesho-${Date.now()}-${index}`,
-        title: query
-          ? `Meesho ${query} Item ${index + 1}`
-          : `Meesho Budget Deal ${index + 1}`,
-        description: "Affordable and quality products from Meesho!",
-        originalPrice: originalPrice,
-        discountedPrice: discountedPrice,
-        discountPercentage: randomDiscount,
-        imageUrl: `https://picsum.photos/seed/meesho${Date.now()}${index}/400/300`,
-        platform: "meesho",
-        externalUrl: "https://www.meesho.com",
-        rating: Math.floor(Math.random() * 2) + 3 + Math.random(),
-        ratingCount: Math.floor(Math.random() * 500) + 50,
-        isNew: Math.random() > 0.5,
-        isTrending: Math.random() > 0.85,
-        category: ["Fashion", "Home", "Beauty", "Accessories", "Kids"][Math.floor(Math.random() * 5)],
-      };
-    });
-
-    console.log("Meesho deals fetched:", deals.length);
-
+function generateMockDeals(platform: string, query: string = "", limit: number = 10): Deal[] {
+  return Array.from({ length: limit }).map((_, index) => {
+    const randomDiscount = Math.floor(Math.random() * 50) + 10;
+    let originalPrice;
+    
+    switch (platform) {
+      case 'amazon':
+        originalPrice = Math.floor(Math.random() * 10000) + 1000;
+        break;
+      case 'flipkart':
+        originalPrice = Math.floor(Math.random() * 8000) + 2000;
+        break;
+      case 'meesho':
+        originalPrice = Math.floor(Math.random() * 3000) + 500;
+        break;
+      default:
+        originalPrice = Math.floor(Math.random() * 5000) + 1000;
+    }
+    
+    const discountedPrice = Math.round(originalPrice * (100 - randomDiscount) / 100);
+    const categories = ["Electronics", "Fashion", "Home", "Beauty", "Toys"];
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    
     return {
-      success: true,
-      deals,
+      id: `${platform}-${Date.now()}-${index}`,
+      title: query
+        ? `${platform.charAt(0).toUpperCase() + platform.slice(1)} ${query} Item ${index + 1}`
+        : `${platform.charAt(0).toUpperCase() + platform.slice(1)} Deal ${index + 1}`,
+      description: `Great deal from ${platform} with fast delivery!`,
+      originalPrice: originalPrice,
+      discountedPrice: discountedPrice,
+      discountPercentage: randomDiscount,
+      imageUrl: `https://picsum.photos/seed/${platform}${Date.now()}${index}/400/300`,
+      platform: platform as 'amazon' | 'flipkart' | 'meesho' | 'other',
+      externalUrl: `https://www.${platform}.com`,
+      rating: Math.floor(Math.random() * 2) + 3 + Math.random(),
+      ratingCount: Math.floor(Math.random() * 1000) + 100,
+      isNew: Math.random() > 0.7,
+      isTrending: Math.random() > 0.8,
+      category: category,
     };
-  } catch (error) {
-    console.error("Error fetching Meesho deals:", error);
-    return {
-      success: false,
-      deals: [],
-      error: "Failed to fetch deals from Meesho. Please try again later.",
-    };
-  }
+  });
 }
 
 // Function to get the real product URL (in a real implementation)

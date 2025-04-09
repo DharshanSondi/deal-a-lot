@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/ui/navbar";
 import { DealCard, DealProps } from "@/components/ui/deal-card";
@@ -10,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import { mockDeals } from "@/data/mock-deals";
+import { fetchDealsFromAllPlatforms } from "@/utils/e-commerce-apis";
+import { toast } from "@/hooks/use-toast";
 
 export default function Deals() {
   const [deals, setDeals] = useState<DealProps[]>([]);
@@ -31,19 +31,44 @@ export default function Deals() {
     home: false,
     beauty: false,
     toys: false,
+    books: false,
+    appliances: false,
+    sports: false,
+    grocery: false,
   });
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [sortOrder, setSortOrder] = useState("discount-high");
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
-    // In a real app, this would be fetched from an API
-    setTimeout(() => {
-      setDeals(mockDeals);
-      setFilteredDeals(mockDeals);
-      setIsLoading(false);
-    }, 1000);
+    fetchDeals();
   }, []);
+
+  const fetchDeals = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetchDealsFromAllPlatforms("", 100);
+      if (response.success) {
+        setDeals(response.deals);
+        setFilteredDeals(response.deals);
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to fetch deals. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching deals:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch deals. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     applyFilters();
@@ -150,9 +175,65 @@ export default function Deals() {
       home: false,
       beauty: false,
       toys: false,
+      books: false,
+      appliances: false,
+      sports: false,
+      grocery: false,
     });
     setPriceRange([0, 50000]);
     setSortOrder("discount-high");
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchFilteredDeals();
+  };
+
+  const fetchFilteredDeals = async () => {
+    setIsLoading(true);
+    
+    // Determine if any platform is selected
+    const activePlatforms = Object.entries(selectedPlatforms)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([platform]) => platform);
+    
+    // Determine if any category is selected
+    const activeCategories = Object.entries(selectedCategories)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([category]) => category);
+    
+    // Select first platform/category if multiple are selected (API only accepts one)
+    const platformFilter = activePlatforms.length > 0 ? activePlatforms[0] : "";
+    const categoryFilter = activeCategories.length > 0 ? activeCategories[0] : "";
+    
+    try {
+      const response = await fetchDealsFromAllPlatforms(
+        searchQuery, 
+        100, 
+        platformFilter, 
+        categoryFilter
+      );
+      
+      if (response.success) {
+        setDeals(response.deals);
+        // Filters will be applied by the useEffect
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to fetch deals. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching filtered deals:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch deals. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -170,7 +251,7 @@ export default function Deals() {
           
           {/* Search and Filter Bar */}
           <div className="mb-8 flex flex-col lg:flex-row gap-4 items-center">
-            <div className="relative flex-grow w-full">
+            <form onSubmit={handleSearch} className="relative flex-grow w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 className="pl-10 pr-4 py-2 rounded-full"
@@ -180,6 +261,7 @@ export default function Deals() {
               />
               {searchQuery && (
                 <Button
+                  type="button"
                   variant="ghost"
                   size="icon"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7"
@@ -188,7 +270,7 @@ export default function Deals() {
                   <X className="h-4 w-4" />
                 </Button>
               )}
-            </div>
+            </form>
             
             <div className="flex gap-2 w-full lg:w-auto">
               <Select value={sortOrder} onValueChange={setSortOrder}>
@@ -210,6 +292,14 @@ export default function Deals() {
               >
                 <SlidersHorizontal className="h-4 w-4" />
                 <span className="hidden sm:inline">Filters</span>
+              </Button>
+              
+              <Button
+                variant="default"
+                className="rounded-full"
+                onClick={fetchFilteredDeals}
+              >
+                Apply
               </Button>
             </div>
           </div>
@@ -300,6 +390,38 @@ export default function Deals() {
                           onCheckedChange={() => handleCategoryChange('toys')}
                         />
                         <Label htmlFor="toys" className="ml-2">Toys & Games</Label>
+                      </div>
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="books"
+                          checked={selectedCategories.books}
+                          onCheckedChange={() => handleCategoryChange('books')}
+                        />
+                        <Label htmlFor="books" className="ml-2">Books</Label>
+                      </div>
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="appliances"
+                          checked={selectedCategories.appliances}
+                          onCheckedChange={() => handleCategoryChange('appliances')}
+                        />
+                        <Label htmlFor="appliances" className="ml-2">Appliances</Label>
+                      </div>
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="sports"
+                          checked={selectedCategories.sports}
+                          onCheckedChange={() => handleCategoryChange('sports')}
+                        />
+                        <Label htmlFor="sports" className="ml-2">Sports & Fitness</Label>
+                      </div>
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="grocery"
+                          checked={selectedCategories.grocery}
+                          onCheckedChange={() => handleCategoryChange('grocery')}
+                        />
+                        <Label htmlFor="grocery" className="ml-2">Grocery</Label>
                       </div>
                     </div>
                   </div>
