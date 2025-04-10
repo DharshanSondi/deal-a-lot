@@ -1,18 +1,27 @@
 
 import { Navbar } from "@/components/ui/navbar";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { Mail, MessageSquare, Phone, MapPin, Send } from "lucide-react";
 
 export default function ContactUs() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,11 +30,9 @@ export default function ContactUs() {
     // Simulate form submission
     setTimeout(() => {
       toast.success("Message sent successfully", {
-        description: "We'll get back to you as soon as possible.",
+        description: "We'll get back to you as soon as possible."
       });
-      setName("");
-      setEmail("");
-      setMessage("");
+      setFormData({ name: "", email: "", subject: "", message: "" });
       setIsSubmitting(false);
     }, 1500);
   };
@@ -34,9 +41,9 @@ export default function ContactUs() {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="pt-28 md:pt-36 px-4 pb-16">
-        <div className="container mx-auto max-w-6xl">
-          <motion.div 
+      <div className="pt-28 md:pt-36 pb-16 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -44,130 +51,80 @@ export default function ContactUs() {
           >
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Contact Us</h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Have a question, suggestion, or feedback? We'd love to hear from you. 
-              Our team is here to help and ensure you have the best experience with DiscountHub.
+              Have questions or feedback? We'd love to hear from you. Fill out the form below or use our contact information.
             </p>
           </motion.div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <motion.div 
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
+              className="lg:col-span-2"
             >
-              <div className="bg-card rounded-xl p-6 shadow-sm mb-8">
-                <h2 className="text-xl font-semibold mb-4">Get in Touch</h2>
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-4">
-                      <Mail size={20} />
+              <div className="bg-card shadow-sm rounded-xl p-6 md:p-8">
+                <h2 className="text-2xl font-semibold mb-6">Send us a message</h2>
+                
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input 
+                        id="name" 
+                        name="name" 
+                        placeholder="Your full name" 
+                        value={formData.name} 
+                        onChange={handleChange} 
+                        required 
+                      />
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">discounthub.dev@gmail.com</p>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input 
+                        id="email" 
+                        name="email" 
+                        type="email" 
+                        placeholder="Your email address" 
+                        value={formData.email} 
+                        onChange={handleChange} 
+                        required 
+                      />
                     </div>
                   </div>
                   
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-4">
-                      <Phone size={20} />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Phone</p>
-                      <p className="font-medium">8341164263</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-4">
-                      <MapPin size={20} />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Office</p>
-                      <p className="font-medium">Hyderabad, India</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-card rounded-xl p-6 shadow-sm">
-                <h2 className="text-xl font-semibold mb-4">Business Hours</h2>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Monday - Friday</span>
-                    <span className="font-medium">9:00 AM - 6:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Saturday</span>
-                    <span className="font-medium">10:00 AM - 4:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Sunday</span>
-                    <span className="font-medium">Closed</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <form onSubmit={handleSubmit} className="bg-card rounded-xl p-6 shadow-sm">
-                <h2 className="text-xl font-semibold mb-4">Send us a Message</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium mb-1">
-                      Name
-                    </label>
-                    <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Your name"
-                      required
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Subject</Label>
+                    <Input 
+                      id="subject" 
+                      name="subject" 
+                      placeholder="Subject of your message" 
+                      value={formData.subject} 
+                      onChange={handleChange} 
+                      required 
                     />
                   </div>
                   
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-1">
-                      Email
-                    </label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Your email address"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium mb-1">
-                      Message
-                    </label>
-                    <Textarea
-                      id="message"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Your message"
-                      rows={5}
-                      required
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Message</Label>
+                    <Textarea 
+                      id="message" 
+                      name="message" 
+                      placeholder="Write your message here..." 
+                      rows={6} 
+                      value={formData.message} 
+                      onChange={handleChange} 
+                      required 
                     />
                   </div>
                   
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="w-full md:w-auto" 
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending...
-                      </>
+                      <>Sending Message...</>
                     ) : (
                       <>
                         <Send className="mr-2 h-4 w-4" />
@@ -175,8 +132,70 @@ export default function ContactUs() {
                       </>
                     )}
                   </Button>
+                </form>
+              </div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <div className="bg-card shadow-sm rounded-xl p-6 md:p-8 h-full">
+                <h2 className="text-2xl font-semibold mb-6">Contact Information</h2>
+                
+                <div className="space-y-8">
+                  <div className="flex">
+                    <div className="mr-4 bg-primary/10 p-3 rounded-full">
+                      <Mail className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-1">Email</h3>
+                      <p className="text-muted-foreground">contact@discounthub.com</p>
+                      <p className="text-muted-foreground">support@discounthub.com</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex">
+                    <div className="mr-4 bg-primary/10 p-3 rounded-full">
+                      <Phone className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-1">Phone</h3>
+                      <p className="text-muted-foreground">+91 8341164263</p>
+                      <p className="text-muted-foreground">+91 6287463834</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex">
+                    <div className="mr-4 bg-primary/10 p-3 rounded-full">
+                      <MapPin className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-1">Location</h3>
+                      <p className="text-muted-foreground">
+                        123 Deal Street, Tech Park<br />
+                        Hyderabad, Telangana 500081<br />
+                        India
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex">
+                    <div className="mr-4 bg-primary/10 p-3 rounded-full">
+                      <MessageSquare className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-1">Social Media</h3>
+                      <div className="flex space-x-3 mt-2">
+                        <a href="#" className="hover:text-primary transition-colors">Twitter</a>
+                        <a href="#" className="hover:text-primary transition-colors">LinkedIn</a>
+                        <a href="#" className="hover:text-primary transition-colors">Facebook</a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </form>
+              </div>
             </motion.div>
           </div>
         </div>
