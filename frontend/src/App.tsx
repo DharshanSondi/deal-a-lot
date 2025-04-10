@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,19 +9,21 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { TourGuide } from "@/components/onboarding/TourGuide";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import Index from "./pages/Index";
-import Deals from "./pages/Deals";
-import DealDetail from "./pages/DealDetail";
-import Categories from "./pages/Categories";
-import Compare from "./pages/Compare";
-import AuthPage from "./pages/AuthPage";
-import Profile from "./pages/Profile";
-import NotFound from "./pages/NotFound";
-import Wishlist from "./pages/Wishlist";
-import Search from "./pages/Search";
-import ContactUs from "./pages/ContactUs";
-import HelpCenter from "./pages/HelpCenter";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
+
+// Update import paths to work correctly in the frontend folder structure
+import Index from "@/pages/Index";
+import Deals from "@/pages/Deals";
+import DealDetail from "@/pages/DealDetail";
+import Categories from "@/pages/Categories";
+import Compare from "@/pages/Compare";
+import AuthPage from "@/pages/AuthPage";
+import Profile from "@/pages/Profile";
+import NotFound from "@/pages/NotFound";
+import Wishlist from "@/pages/Wishlist";
+import Search from "@/pages/Search";
+import ContactUs from "@/pages/ContactUs";
+import HelpCenter from "@/pages/HelpCenter";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient({
