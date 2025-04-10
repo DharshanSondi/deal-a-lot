@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { ThemeToggle } from "@/components/theme/theme-provider";
 import { supabase } from "@/integrations/supabase/client";
 import { mockDeals } from "@/data/mock-deals";
 import { Deal } from "@/types/deals";
@@ -171,14 +171,8 @@ export default function Profile() {
   
   const handleDeleteAccount = async () => {
     try {
-      // Delete account from Supabase
-      const { error } = await supabase.auth.admin.deleteUser(
-        (await supabase.auth.getUser()).data.user?.id || ""
-      );
-      
-      if (error) throw error;
-      
-      // Clear all user data
+      // In a real implementation, you would call a Supabase function to delete the user account
+      // For now, we'll just simulate this by clearing localStorage
       localStorage.removeItem("user");
       localStorage.removeItem("savedDeals");
       localStorage.removeItem("comparedProducts");
