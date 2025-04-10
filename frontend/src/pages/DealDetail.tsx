@@ -4,7 +4,6 @@ import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/ui/navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { 
   ExternalLink, 
   ArrowLeft, 
@@ -16,7 +15,7 @@ import {
 } from "lucide-react";
 import { mockDeals } from "@/data/mock-deals";
 import { Deal } from "@/types/deals";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export default function DealDetail() {
   const { id } = useParams<{ id: string }>();
@@ -43,14 +42,12 @@ export default function DealDetail() {
     
     if (isLiked) {
       newSavedDeals = savedDeals.filter((dealId: string) => dealId !== id);
-      toast({
-        title: "Deal removed",
+      toast.success("Deal removed", {
         description: "Removed from your saved deals",
       });
     } else {
       newSavedDeals = [...savedDeals, id];
-      toast({
-        title: "Deal saved",
+      toast.success("Deal saved", {
         description: "Added to your saved deals",
       });
     }
@@ -62,8 +59,7 @@ export default function DealDetail() {
   const handleShare = () => {
     // Copy URL to clipboard
     navigator.clipboard.writeText(window.location.href);
-    toast({
-      title: "Link copied",
+    toast.success("Link copied", {
       description: "Deal link copied to clipboard",
     });
   };
