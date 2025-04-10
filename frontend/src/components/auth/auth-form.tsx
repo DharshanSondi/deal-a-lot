@@ -10,7 +10,7 @@ import { LoginForm } from "./login-form";
 import { RegisterForm } from "./register-form";
 import { SocialAuthButtons } from "./social-auth-buttons";
 import { AuthDivider } from "./divider";
-import { formVariants } from "./animation-variants";
+import { formVariants, itemVariants } from "./animation-variants";
 import { toast } from "sonner";
 
 export function AuthForm() {
