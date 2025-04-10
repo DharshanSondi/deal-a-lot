@@ -1,70 +1,94 @@
 
-import { Deal } from "@/types/deals";
-import { supabase } from "@/integrations/supabase/client";
+import { Deal, ApiResponse } from "@/types/deals";
+import { mockDeals } from "@/data/mock-deals";
 
-interface ApiResponse {
-  success: boolean;
-  deals: Deal[];
-  error?: string;
-}
-
-// This function fetches real deals from our edge function that aggregates deals from multiple platforms
-export async function fetchDealsFromAllPlatforms(
-  query: string = "",
-  limit: number = 50,
-  platform: string = "",
+// This is a mock implementation that simulates API calls to fetch deals
+export const fetchDealsFromAllPlatforms = async (
+  query: string = "", 
+  limit: number = 20, 
+  sortBy: string = "", 
   category: string = ""
-): Promise<ApiResponse> {
+): Promise<ApiResponse<Deal>> => {
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 600));
+  
   try {
-    console.log("Fetching deals with query:", query, "limit:", limit, "platform:", platform, "category:", category);
+    // Filter deals based on parameters
+    let filteredDeals = [...mockDeals];
     
-    // Call the Supabase edge function to get deals
-    const { data, error } = await supabase.functions.invoke("get-deals", {
-      body: {
-        query,
-        limit,
-        platform,
-        category
-      }
-    });
-
-    if (error) {
-      console.error("Error calling get-deals function:", error);
-      return {
-        success: false,
-        deals: [],
-        error: "Failed to fetch deals from platforms. Please try again later."
-      };
+    // Filter by search query
+    if (query) {
+      const searchTerm = query.toLowerCase();
+      filteredDeals = filteredDeals.filter(deal => 
+        deal.title.toLowerCase().includes(searchTerm) || 
+        deal.description.toLowerCase().includes(searchTerm)
+      );
     }
-
-    console.log("Fetched deals:", data.deals.length);
+    
+    // Filter by category
+    if (category) {
+      filteredDeals = filteredDeals.filter(deal => 
+        deal.category && deal.category.toLowerCase() === category.toLowerCase()
+      );
+    }
+    
+    // Sort deals
+    if (sortBy) {
+      switch (sortBy) {
+        case "price_low":
+          filteredDeals.sort((a, b) => a.discountedPrice - b.discountedPrice);
+          break;
+        case "price_high":
+          filteredDeals.sort((a, b) => b.discountedPrice - a.discountedPrice);
+          break;
+        case "discount":
+          filteredDeals.sort((a, b) => b.discountPercentage - a.discountPercentage);
+          break;
+        case "rating":
+          filteredDeals.sort((a, b) => b.rating - a.rating);
+          break;
+        case "newest":
+          filteredDeals.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+          break;
+        default:
+          // Default sorting - featured first, then by discount percentage
+          filteredDeals.sort((a, b) => {
+            if (a.isFeatured !== b.isFeatured) {
+              return a.isFeatured ? -1 : 1;
+            }
+            return b.discountPercentage - a.discountPercentage;
+          });
+      }
+    }
+    
+    // Apply limit
+    const limitedDeals = filteredDeals.slice(0, limit);
     
     return {
       success: true,
-      deals: data.deals,
+      deals: limitedDeals,
+      totalResults: filteredDeals.length
     };
   } catch (error) {
     console.error("Error fetching deals:", error);
     return {
       success: false,
-      deals: [],
-      error: "Failed to fetch deals from platforms. Please try again later.",
+      message: "Failed to fetch deals. Please try again later.",
+      deals: []
     };
   }
-}
+};
 
-// Function to get the real product URL (in a real implementation)
-export function getProductExternalUrl(deal: Deal): string {
-  // In a real implementation, this would construct the actual product URL
-  // based on the platform and product ID
-  switch (deal.platform) {
-    case 'amazon':
-      return `https://www.amazon.in/dp/${deal.id.split('-')[1]}`;
-    case 'flipkart':
-      return `https://www.flipkart.com/product/${deal.id.split('-')[1]}`;
-    case 'meesho':
-      return `https://www.meesho.com/product/${deal.id.split('-')[1]}`;
-    default:
-      return deal.externalUrl;
+// Function to fetch a single deal by ID
+export const fetchDealById = async (id: string): Promise<Deal | null> => {
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 400));
+  
+  try {
+    const deal = mockDeals.find(deal => deal.id === id);
+    return deal || null;
+  } catch (error) {
+    console.error("Error fetching deal:", error);
+    return null;
   }
-}
+};
