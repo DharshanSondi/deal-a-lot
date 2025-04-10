@@ -76,6 +76,42 @@ export const mockDeals: Deal[] = [
     created: new Date("2023-03-01").toISOString(),
     expires: new Date("2023-08-01").toISOString()
   },
+  {
+    id: "e5",
+    title: "Dell XPS 15 - Intel Core i7, 16GB RAM, 512GB SSD",
+    description: "Premium laptop with a stunning 15.6-inch InfinityEdge display, powerful performance, and long battery life for professionals and creators.",
+    imageUrl: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1632&q=80",
+    originalPrice: 149990,
+    discountedPrice: 129990,
+    discountPercentage: 13,
+    rating: 4.6,
+    reviewCount: 832,
+    isNew: true,
+    isFeatured: false,
+    category: "electronics",
+    platform: "amazon",
+    externalUrl: "https://www.amazon.com",
+    created: new Date("2023-04-01").toISOString(),
+    expires: new Date("2023-09-01").toISOString()
+  },
+  {
+    id: "e6",
+    title: "Bose QuietComfort Earbuds II - Noise Cancelling",
+    description: "The world's best noise cancelling in-ear headphones with personalized sound and up to 6 hours of battery life.",
+    imageUrl: "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+    originalPrice: 24900,
+    discountedPrice: 19900,
+    discountPercentage: 20,
+    rating: 4.7,
+    reviewCount: 1524,
+    isNew: true,
+    isFeatured: false,
+    category: "electronics",
+    platform: "flipkart",
+    externalUrl: "https://www.flipkart.com",
+    created: new Date("2023-03-15").toISOString(),
+    expires: new Date("2023-08-15").toISOString()
+  },
   
   // Fashion Category
   {
@@ -113,6 +149,42 @@ export const mockDeals: Deal[] = [
     externalUrl: "https://www.ajio.com",
     created: new Date("2023-01-25").toISOString(),
     expires: new Date("2023-06-20").toISOString()
+  },
+  {
+    id: "f3",
+    title: "Levi's 511 Slim Fit Men's Jeans - Dark Wash",
+    description: "The 511 Slim Fit Jeans are a modern slim with room to move—a classic since 2006. These jeans sit below the waist with a slim fit through the hip and thigh.",
+    imageUrl: "https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1026&q=80",
+    originalPrice: 3599,
+    discountedPrice: 2159,
+    discountPercentage: 40,
+    rating: 4.6,
+    reviewCount: 3289,
+    isNew: false,
+    isFeatured: false,
+    category: "fashion",
+    platform: "amazon",
+    externalUrl: "https://www.amazon.com",
+    created: new Date("2023-02-18").toISOString(),
+    expires: new Date("2023-07-18").toISOString()
+  },
+  {
+    id: "f4",
+    title: "Women's Floral Print Maxi Dress - Summer Collection",
+    description: "This beautiful floral print maxi dress features a flattering silhouette, adjustable straps, and lightweight fabric perfect for summer days.",
+    imageUrl: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=746&q=80",
+    originalPrice: 1999,
+    discountedPrice: 1399,
+    discountPercentage: 30,
+    rating: 4.4,
+    reviewCount: 982,
+    isNew: true,
+    isFeatured: true,
+    category: "fashion",
+    platform: "myntra",
+    externalUrl: "https://www.myntra.com",
+    created: new Date("2023-03-10").toISOString(),
+    expires: new Date("2023-08-10").toISOString()
   },
   
   // Home & Kitchen Category
@@ -152,6 +224,42 @@ export const mockDeals: Deal[] = [
     created: new Date("2023-03-05").toISOString(),
     expires: new Date("2023-08-05").toISOString()
   },
+  {
+    id: "h3",
+    title: "Philips Air Purifier with HEPA Filter - AC1215/20",
+    description: "Philips AC1215/20 Air Purifier removes 99.97% of airborne pollutants with its HEPA filter. Ideal for rooms up to 32 sq.m, with air quality feedback and auto mode.",
+    imageUrl: "https://images.unsplash.com/photo-1573649263085-db3f7c4ca6f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+    originalPrice: 10995,
+    discountedPrice: 8499,
+    discountPercentage: 23,
+    rating: 4.5,
+    reviewCount: 1842,
+    isNew: false,
+    isFeatured: false,
+    category: "home",
+    platform: "croma",
+    externalUrl: "https://www.croma.com",
+    created: new Date("2023-02-14").toISOString(),
+    expires: new Date("2023-07-14").toISOString()
+  },
+  {
+    id: "h4",
+    title: "Borosil Glass Food Storage Containers Set of 3",
+    description: "Microwave-safe glass containers with airtight lids, perfect for storing leftovers and meal prep. Dishwasher safe and BPA-free.",
+    imageUrl: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+    originalPrice: 1499,
+    discountedPrice: 999,
+    discountPercentage: 33,
+    rating: 4.7,
+    reviewCount: 932,
+    isNew: true,
+    isFeatured: false,
+    category: "home",
+    platform: "amazon",
+    externalUrl: "https://www.amazon.com",
+    created: new Date("2023-03-25").toISOString(),
+    expires: new Date("2023-08-25").toISOString()
+  },
   
   // Beauty & Health Category
   {
@@ -172,6 +280,42 @@ export const mockDeals: Deal[] = [
     created: new Date("2023-02-20").toISOString(),
     expires: new Date("2023-07-20").toISOString()
   },
+  {
+    id: "b2",
+    title: "Forest Essentials Facial Ubtan - 50g",
+    description: "Traditional Ayurvedic cleansing powder made with pure herbs, saffron, and turmeric for bright, clear skin. Gentle exfoliating properties for all skin types.",
+    imageUrl: "https://images.unsplash.com/photo-1643185694496-e163f7ab8e28?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+    originalPrice: 1575,
+    discountedPrice: 1260,
+    discountPercentage: 20,
+    rating: 4.8,
+    reviewCount: 1264,
+    isNew: false,
+    isFeatured: false,
+    category: "beauty",
+    platform: "nykaa",
+    externalUrl: "https://www.nykaa.com",
+    created: new Date("2023-01-15").toISOString(),
+    expires: new Date("2023-06-15").toISOString()
+  },
+  {
+    id: "b3",
+    title: "Himalaya Wellness Pure Herbs Ashvagandha - 60 Tablets",
+    description: "Ayurvedic supplement that helps reduce stress and anxiety, improves energy, and promotes overall wellness and immunity.",
+    imageUrl: "https://images.unsplash.com/photo-1577384051049-abc431aafe56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+    originalPrice: 290,
+    discountedPrice: 199,
+    discountPercentage: 31,
+    rating: 4.6,
+    reviewCount: 3872,
+    isNew: true,
+    isFeatured: true,
+    category: "beauty",
+    platform: "amazon",
+    externalUrl: "https://www.amazon.com",
+    created: new Date("2023-03-05").toISOString(),
+    expires: new Date("2023-08-05").toISOString()
+  },
   
   // Toys & Games Category
   {
@@ -191,5 +335,41 @@ export const mockDeals: Deal[] = [
     externalUrl: "https://www.firstcry.com",
     created: new Date("2023-02-15").toISOString(),
     expires: new Date("2023-07-15").toISOString()
+  },
+  {
+    id: "t2",
+    title: "Nerf Elite 2.0 Commander RD-6 Blaster",
+    description: "Motorized Nerf blaster with 6-dart rotating drum and tactical rails. Includes 12 official Nerf Elite darts for indoor and outdoor fun.",
+    imageUrl: "https://images.unsplash.com/photo-1566140967404-b8b3932483f5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+    originalPrice: 1499,
+    discountedPrice: 999,
+    discountPercentage: 33,
+    rating: 4.4,
+    reviewCount: 542,
+    isNew: true,
+    isFeatured: false,
+    category: "toys",
+    platform: "amazon",
+    externalUrl: "https://www.amazon.com",
+    created: new Date("2023-03-10").toISOString(),
+    expires: new Date("2023-08-10").toISOString()
+  },
+  {
+    id: "t3",
+    title: "Funskool Monopoly - The Original Board Game",
+    description: "The classic property trading board game for 2-6 players. Buy, sell, trade, and build your way to become the wealthiest player and win!",
+    imageUrl: "https://images.unsplash.com/photo-1611371805429-8b5c1f0ab9c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+    originalPrice: 899,
+    discountedPrice: 699,
+    discountPercentage: 22,
+    rating: 4.7,
+    reviewCount: 1589,
+    isNew: false,
+    isFeatured: true,
+    category: "toys",
+    platform: "flipkart",
+    externalUrl: "https://www.flipkart.com",
+    created: new Date("2023-01-20").toISOString(),
+    expires: new Date("2023-06-20").toISOString()
   }
 ];
