@@ -7,7 +7,7 @@ export interface Deal {
   discountedPrice: number;
   discountPercentage: number;
   imageUrl: string;
-  platform: string;
+  platform: 'amazon' | 'flipkart' | 'meesho' | 'other';
   externalUrl: string;
   rating: number;
   reviewCount?: number;
@@ -17,4 +17,6 @@ export interface Deal {
   isTrending?: boolean;
   created?: string;
   expires?: string;
+  ratingCount?: number;
+  isOutOfStock?: boolean;
 }
