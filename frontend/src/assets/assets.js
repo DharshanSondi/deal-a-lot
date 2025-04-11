@@ -8,7 +8,7 @@ import upload_area from './images/upload_area.png';
 import parcel_icon from './images/parcel_icon.png';
 
 // Base URL configuration - change this when deploying to different environments
-export const baseUrl = import.meta.env.VITE_API_URL || "https://discounthub-dev.onrender.com";
+export const baseUrl = import.meta.env.VITE_API_URL || "https://discounthub-dev-backend.onrender.com";
 export const currency = '₹';
 
 // Export all assets in a single object for easier imports
