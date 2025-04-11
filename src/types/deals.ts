@@ -16,3 +16,11 @@ export interface Deal {
   ratingCount?: number;
   isOutOfStock?: boolean;
 }
+
+export interface ApiResponse<T = Deal[]> {
+  success: boolean;
+  deals: T;
+  error?: string;
+  totalResults?: number;
+  message?: string;
+}
