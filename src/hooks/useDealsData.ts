@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchDealsFromAllPlatforms } from "@/utils/api";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Deal } from "@/types/deals";
 
 export function useDealsData() {
@@ -19,18 +19,14 @@ export function useDealsData() {
       if (response.success) {
         setDeals(response.deals);
       } else {
-        toast({
-          title: "Error",
-          description: response.error || "Failed to fetch deals. Please try again later.",
-          variant: "destructive",
+        toast.error("Failed to fetch deals", {
+          description: response.message || "Please try again later."
         });
       }
     } catch (error) {
       console.error("Error fetching deals:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch deals. Please try again later.",
-        variant: "destructive",
+      toast.error("Failed to fetch deals", {
+        description: "Please try again later."
       });
     } finally {
       setIsLoading(false);
@@ -69,18 +65,14 @@ export function useDealsData() {
       if (response.success) {
         setDeals(response.deals);
       } else {
-        toast({
-          title: "Error",
-          description: response.error || "Failed to fetch deals. Please try again later.",
-          variant: "destructive",
+        toast.error("Failed to fetch deals", {
+          description: response.message || "Please try again later."
         });
       }
     } catch (error) {
       console.error("Error fetching filtered deals:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch deals. Please try again later.",
-        variant: "destructive",
+      toast.error("Failed to fetch deals", {
+        description: "Please try again later."
       });
     } finally {
       setIsLoading(false);

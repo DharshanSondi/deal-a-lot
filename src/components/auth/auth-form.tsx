@@ -21,6 +21,7 @@ export function AuthForm() {
 
   // Check for auth state changes and handle redirects
   useEffect(() => {
+    // First, check for existing session
     const checkForRedirectSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
@@ -52,6 +53,7 @@ export function AuthForm() {
 
     checkForRedirectSession();
     
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event, session);
@@ -120,7 +122,7 @@ export function AuthForm() {
               <CardContent className="space-y-4">
                 <RegisterForm onSuccess={() => setIsLogin(true)} />
               </CardContent>
-              <CardFooter className="flex-col space-y-4">
+              <CardFooter className="flex flex-col space-y-4">
                 <AuthDivider text="Or sign up with" />
                 <SocialAuthButtons 
                   isLoading={isLoading || socialAuthInProgress}

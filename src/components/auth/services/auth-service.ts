@@ -6,7 +6,21 @@ export async function registerUser(email: string, password: string, name: string
   console.log("Attempting registration with:", email);
   
   try {
-    // Simple signup approach without any captcha
+    // Check if user already exists
+    const { data: existingUser } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+      
+    if (existingUser) {
+      toast.error("Registration failed", {
+        description: "This email is already registered. Please login instead."
+      });
+      return { isExistingUser: true, data: null };
+    }
+    
+    // Register new user
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -29,7 +43,7 @@ export async function registerUser(email: string, password: string, name: string
         toast.error("Registration failed", {
           description: errorMessage
         });
-        return { isExistingUser: true, data };
+        return { isExistingUser: true, data: null };
       } else {
         toast.error("Registration failed", {
           description: error.message || "Please try again."
@@ -46,7 +60,7 @@ export async function registerUser(email: string, password: string, name: string
       toast.error("Registration failed", {
         description: "This email is already registered. Please login instead."
       });
-      return { isExistingUser: true, data };
+      return { isExistingUser: true, data: null };
     }
     
     toast.success("Registration successful", {
@@ -56,6 +70,55 @@ export async function registerUser(email: string, password: string, name: string
     return { isExistingUser: false, data };
   } catch (error: any) {
     console.error("Registration error:", error);
+    throw error;
+  }
+}
+
+export async function loginUser(email: string, password: string) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("Login error:", error);
+      
+      let errorMessage = "Failed to login. Please try again.";
+      
+      if (error.message.includes("Invalid login credentials")) {
+        errorMessage = "The email or password you entered is incorrect. Please try again.";
+      }
+      
+      toast.error("Login failed", {
+        description: errorMessage
+      });
+      
+      throw error;
+    }
+
+    toast.success("Login successful", {
+      description: "Welcome back to DiscountHub!"
+    });
+
+    return data;
+  } catch (error: any) {
+    console.error("Login error:", error);
+    throw error;
+  }
+}
+
+export async function logoutUser() {
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    
+    toast.info("Signed out successfully");
+  } catch (error: any) {
+    console.error("Logout error:", error);
+    toast.error("Logout failed", {
+      description: error.message || "Please try again"
+    });
     throw error;
   }
 }

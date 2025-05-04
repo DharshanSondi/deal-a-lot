@@ -1,6 +1,6 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -33,6 +33,8 @@ const App = () => {
       },
     },
   }));
+  
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   // Check if user has seen the tour
   useEffect(() => {
@@ -46,9 +48,19 @@ const App = () => {
 
   // Set up auth state listener at the app level
   useEffect(() => {
+    // First check for existing session
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsAuthenticated(!!data.session);
+    };
+    
+    checkSession();
+    
+    // Then set up listener for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed in App:", event);
+        setIsAuthenticated(!!session);
         
         if (event === 'SIGNED_IN' && session) {
           toast.success("Login successful", {
@@ -72,6 +84,16 @@ const App = () => {
       return savedTheme as "system" | "dark" | "light";
     }
     return "system";
+  };
+
+  // Protected route component
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    if (isAuthenticated === null) {
+      // Loading state
+      return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    }
+    
+    return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
   };
 
   return (
@@ -98,8 +120,16 @@ const App = () => {
             <Route path="/categories" element={<Categories />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/wishlist" element={
+              <ProtectedRoute>
+                <Wishlist />
+              </ProtectedRoute>
+            } />
             <Route path="/search" element={<Search />} />
             <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/help-center" element={<HelpCenter />} />

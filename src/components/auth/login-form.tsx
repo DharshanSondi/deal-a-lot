@@ -5,11 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
 import { FormAlert } from "./form-alert";
 import { itemVariants } from "./animation-variants";
-import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "./services/auth-service";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -44,33 +43,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       
       console.log("Attempting login with:", form.email);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: form.email,
-        password: form.password,
-      });
+      await loginUser(form.email, form.password);
       
-      if (error) {
-        console.error("Login error:", error);
-        if (error.message.includes("Invalid login credentials")) {
-          setErrorMessage("The email or password you entered is incorrect. Please try again.");
-        } else {
-          setErrorMessage(error.message || "Failed to login. Please try again.");
-        }
-        throw error;
-      }
-      
-      console.log("Login successful:", data);
-      toast.success("Login successful", {
-        description: "Welcome back to DiscountHub!"
-      });
-
       // Redirect to home page after successful login
       navigate("/");
     } catch (error: any) {
       console.error("Auth error:", error);
-      toast.error("Authentication failed", {
-        description: errorMessage || error.message || "Please try again"
-      });
+      setErrorMessage(error.message || "Failed to login. Please try again.");
     } finally {
       setIsLoading(false);
     }
