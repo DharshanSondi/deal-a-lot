@@ -17,12 +17,16 @@ const UserFeedback = () => {
     e.preventDefault();
     
     if (!feedbackText.trim()) {
-      toast.error('Please enter your feedback');
+      toast.error('Please enter your feedback', {
+        className: 'bg-background border-red-500'
+      });
       return;
     }
     
     if (rating === 0) {
-      toast.error('Please provide a rating');
+      toast.error('Please provide a rating', {
+        className: 'bg-background border-red-500'
+      });
       return;
     }
     
@@ -32,7 +36,9 @@ const UserFeedback = () => {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !sessionData.session) {
-        toast.error('You must be logged in to submit feedback');
+        toast.error('You must be logged in to submit feedback', {
+          className: 'bg-background border-red-500'
+        });
         setIsSubmitting(false);
         return;
       }
@@ -49,15 +55,21 @@ const UserFeedback = () => {
       
       if (error) {
         console.error('Error submitting feedback:', error);
-        toast.error('Failed to submit feedback');
+        toast.error('Failed to submit feedback', {
+          className: 'bg-background border-red-500'
+        });
       } else {
-        toast.success('Thank you for your feedback!');
+        toast.success('Thank you for your feedback!', {
+          className: 'bg-background border-green-500'
+        });
         setFeedbackText('');
         setRating(0);
       }
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      toast.error('Failed to submit feedback');
+      toast.error('Failed to submit feedback', {
+        className: 'bg-background border-red-500'
+      });
     } finally {
       setIsSubmitting(false);
     }

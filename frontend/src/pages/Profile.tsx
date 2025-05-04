@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { User, Settings, Bell, LogOut, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import UserFeedback from "@/components/feedback/UserFeedback";
+import AvatarSelector from "@/components/profile/AvatarSelector";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("account");
@@ -23,7 +24,7 @@ export default function Profile() {
     name: "John Doe",
     email: "john.doe@example.com",
     phone: "+1 234 567 8900",
-    avatar: "",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
     bio: "I'm always looking for the best deals on tech and fashion!",
   });
   
@@ -45,18 +46,28 @@ export default function Profile() {
   const handleSaveProfile = () => {
     setIsLoading(true);
     setTimeout(() => {
-      toast.success("Profile updated successfully!");
+      toast.success("Profile updated successfully!", {
+        className: "bg-background border-green-500",
+      });
       setIsLoading(false);
     }, 1500);
+  };
+  
+  const handleAvatarChange = (newAvatarUrl: string) => {
+    setUserData({...userData, avatar: newAvatarUrl});
   };
   
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
-      toast.info("You've been signed out");
+      toast.info("You've been signed out", {
+        className: "bg-background border-blue-500",
+      });
       navigate("/");
     } catch (error) {
-      toast.error("Error signing out");
+      toast.error("Error signing out", {
+        className: "bg-background border-red-500",
+      });
     }
   };
   
@@ -78,7 +89,7 @@ export default function Profile() {
               onValueChange={setActiveTab} 
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-3 mb-8">
+              <TabsList className="grid w-full grid-cols-4 mb-8">
                 <TabsTrigger value="account" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">Account</span>
@@ -91,16 +102,20 @@ export default function Profile() {
                   <Settings className="h-4 w-4" />
                   <span className="hidden sm:inline">Settings</span>
                 </TabsTrigger>
+                <TabsTrigger value="feedback" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">Feedback</span>
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="account" className="space-y-6">
                 <div className="flex flex-col md:flex-row gap-8">
                   <div className="flex-shrink-0 flex flex-col items-center">
-                    <Avatar className="h-24 w-24 mb-4">
-                      <AvatarImage src={userData.avatar} alt={userData.name} />
-                      <AvatarFallback>{userData.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <Button variant="outline" size="sm">Change Avatar</Button>
+                    <AvatarSelector
+                      currentAvatar={userData.avatar}
+                      userName={userData.name}
+                      onAvatarChange={handleAvatarChange}
+                    />
                   </div>
                   
                   <div className="flex-grow space-y-4">
@@ -301,6 +316,10 @@ export default function Profile() {
                     )}
                   </Button>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="feedback" className="space-y-6">
+                <UserFeedback />
               </TabsContent>
             </Tabs>
           </div>

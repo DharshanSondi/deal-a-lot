@@ -1,6 +1,6 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "sonner";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -9,19 +9,21 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { TourGuide } from "@/components/onboarding/TourGuide";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import Index from "./pages/Index";
-import Deals from "./pages/Deals";
-import DealDetail from "./pages/DealDetail";
-import Categories from "./pages/Categories";
-import Compare from "./pages/Compare";
-import AuthPage from "./pages/AuthPage";
-import Profile from "./pages/Profile";
-import NotFound from "./pages/NotFound";
-import Wishlist from "./pages/Wishlist";
-import Search from "./pages/Search";
-import ContactUs from "./pages/ContactUs";
-import HelpCenter from "./pages/HelpCenter";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
+
+// Update import paths to work correctly in the frontend folder structure
+import Index from "@/pages/Index";
+import Deals from "@/pages/Deals";
+import DealDetail from "@/pages/DealDetail";
+import Categories from "@/pages/Categories";
+import Compare from "@/pages/Compare";
+import AuthPage from "@/pages/AuthPage";
+import Profile from "@/pages/Profile";
+import NotFound from "@/pages/NotFound";
+import Wishlist from "@/pages/Wishlist";
+import Search from "@/pages/Search";
+import ContactUs from "@/pages/ContactUs";
+import HelpCenter from "@/pages/HelpCenter";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient({
@@ -33,8 +35,6 @@ const App = () => {
       },
     },
   }));
-  
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   // Check if user has seen the tour
   useEffect(() => {
@@ -48,26 +48,19 @@ const App = () => {
 
   // Set up auth state listener at the app level
   useEffect(() => {
-    // First check for existing session
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsAuthenticated(!!data.session);
-    };
-    
-    checkSession();
-    
-    // Then set up listener for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed in App:", event);
-        setIsAuthenticated(!!session);
         
         if (event === 'SIGNED_IN' && session) {
           toast.success("Login successful", {
-            description: "Welcome to DiscountHub!"
+            description: "Welcome to DiscountHub!",
+            className: "bg-background border-green-500",
           });
         } else if (event === 'SIGNED_OUT') {
-          toast.info("Signed out successfully");
+          toast.info("Signed out successfully", {
+            className: "bg-background border-blue-500",
+          });
         }
       }
     );
@@ -84,16 +77,6 @@ const App = () => {
       return savedTheme as "system" | "dark" | "light";
     }
     return "system";
-  };
-
-  // Protected route component
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    if (isAuthenticated === null) {
-      // Loading state
-      return <div className="flex items-center justify-center h-screen">Loading...</div>;
-    }
-    
-    return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
   };
 
   return (
@@ -120,16 +103,8 @@ const App = () => {
             <Route path="/categories" element={<Categories />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="/wishlist" element={
-              <ProtectedRoute>
-                <Wishlist />
-              </ProtectedRoute>
-            } />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/search" element={<Search />} />
             <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/help-center" element={<HelpCenter />} />
