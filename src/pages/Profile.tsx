@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/ui/navbar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { DealCard } from "@/components/ui/deal-card";
 import { mockDeals } from "@/data/mock-deals";
 import { Deal } from "@/types/deals";
 import { toast } from "@/hooks/use-toast";
-import { User, Settings, Bell, Heart, LogOut, Check, AlertTriangle } from "lucide-react";
+import { User, Settings, Bell, Heart, LogOut, Check, AlertTriangle, MessageSquare } from "lucide-react";
 import { 
   Select, 
   SelectContent, 
@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { SubscribeForm } from "@/components/subscribe/subscribe-form";
+import UserFeedback from "@/components/feedback/UserFeedback";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Profile() {
   const [savedDeals, setSavedDeals] = useState<Deal[]>([]);
@@ -84,18 +86,43 @@ export default function Profile() {
           console.error("Error parsing user info:", error);
         }
       }
+
+      // Try to get user info from Supabase if available
+      const getUserFromSupabase = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+          setUser(prev => ({
+            ...prev,
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || "User",
+            email: session.user.email || "user@example.com",
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.user.email || "User"}`,
+          }));
+        }
+      };
+      
+      getUserFromSupabase();
     }, 800);
   }, []);
 
-  const handleLogout = () => {
-    // Simulate logout
-    localStorage.removeItem("user");
-    toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account",
-    });
-    // In a real app, redirect to home page
-    window.location.href = "/";
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      // Simulate logout
+      localStorage.removeItem("user");
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account",
+      });
+      // In a real app, redirect to home page
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Error signing out",
+        description: "Please try again",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleNotificationChange = (key: string, value: boolean) => {
@@ -205,6 +232,10 @@ export default function Profile() {
                     <Heart className="mr-2 h-4 w-4" />
                     Saved Deals
                   </TabsTrigger>
+                  <TabsTrigger value="feedback" className="flex items-center">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Feedback
+                  </TabsTrigger>
                   <TabsTrigger value="account" className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
                     Account
@@ -246,6 +277,11 @@ export default function Profile() {
                       </Button>
                     </div>
                   )}
+                </TabsContent>
+                
+                <TabsContent value="feedback" className="space-y-6">
+                  <h2 className="text-2xl font-bold">Share Your Feedback</h2>
+                  <UserFeedback />
                 </TabsContent>
                 
                 <TabsContent value="account" className="space-y-6">

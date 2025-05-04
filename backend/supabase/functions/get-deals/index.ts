@@ -270,6 +270,66 @@ function generateDeals(query = "", limit = 50, platform = "", category = "") {
       ratingCount: 234,
       category: "home",
       isNew: true
+    },
+    // Amazon Fashion
+    {
+      id: "amazon-6",
+      title: "Levi's Men's 511 Slim Fit Jeans",
+      description: "Classic slim fit jeans with stretch for comfort, perfect for casual wear",
+      originalPrice: 3999,
+      discountedPrice: 2499,
+      discountPercentage: 38,
+      imageUrl: "https://m.media-amazon.com/images/I/61G1ZLzdTaL._UX569_.jpg",
+      platform: "amazon",
+      externalUrl: "https://www.amazon.in/dp/B08FT34QKD",
+      rating: 4.4,
+      ratingCount: 1256,
+      category: "fashion"
+    },
+    {
+      id: "amazon-7",
+      title: "ASIAN Men's Wonder Sports Running Shoes",
+      description: "Lightweight mesh upper with cushioned insole for all-day comfort",
+      originalPrice: 1499,
+      discountedPrice: 649,
+      discountPercentage: 57,
+      imageUrl: "https://m.media-amazon.com/images/I/61utX8kBDlL._UY575_.jpg",
+      platform: "amazon",
+      externalUrl: "https://www.amazon.in/dp/B0BYN7BSCL",
+      rating: 4.0,
+      ratingCount: 3452,
+      category: "fashion",
+      isTrending: true
+    },
+    // Flipkart Home
+    {
+      id: "flipkart-5",
+      title: "PHILIPS Digital Air Fryer HD9252/90",
+      description: "Rapid Air Technology for healthy cooking with little to no oil, 7 presets",
+      originalPrice: 11995,
+      discountedPrice: 7499,
+      discountPercentage: 37,
+      imageUrl: "https://rukminim2.flixcart.com/image/416/416/l5ld8y80/air-fryer/b/r/s/-original-imagg8dgh3rkbgbh.jpeg",
+      platform: "flipkart",
+      externalUrl: "https://www.flipkart.com/product/p/itme?pid=AFRG9U5UZFGT9BR3",
+      rating: 4.5,
+      ratingCount: 621,
+      category: "home",
+      isNew: true
+    },
+    {
+      id: "flipkart-6",
+      title: "CRYSTAL FURNITECH Engineered Wood Study Table",
+      description: "Modern design with storage shelves, perfect for home office or study",
+      originalPrice: 7999,
+      discountedPrice: 3999,
+      discountPercentage: 50,
+      imageUrl: "https://rukminim2.flixcart.com/image/416/416/xif0q/office-study-table/o/l/p/-original-imagzj5hgmfhfqkg.jpeg",
+      platform: "flipkart",
+      externalUrl: "https://www.flipkart.com/product/p/itme?pid=OSTGF9CHFKJU7YCZ",
+      rating: 4.2,
+      ratingCount: 472,
+      category: "home"
     }
   ];
   
@@ -281,7 +341,7 @@ function generateDeals(query = "", limit = 50, platform = "", category = "") {
     const searchTerm = query.toLowerCase();
     filteredDeals = filteredDeals.filter(deal => 
       deal.title.toLowerCase().includes(searchTerm) || 
-      deal.description.toLowerCase().includes(searchTerm)
+      (deal.description && deal.description.toLowerCase().includes(searchTerm))
     );
   }
   
