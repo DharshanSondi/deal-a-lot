@@ -6,19 +6,8 @@ export async function registerUser(email: string, password: string, name: string
   console.log("Attempting registration with:", email);
   
   try {
-    // Check if user already exists
-    const { data: existingUser } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
-      
-    if (existingUser) {
-      toast.error("Registration failed", {
-        description: "This email is already registered. Please login instead."
-      });
-      return { isExistingUser: true, data: null };
-    }
+    // Check if user already exists - removed problematic profiles query
+    // Instead, we'll check via auth signup response
     
     // Register new user
     const { data, error } = await supabase.auth.signUp({

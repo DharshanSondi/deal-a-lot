@@ -20,7 +20,6 @@ export interface Deal {
 export interface ApiResponse<T = Deal[]> {
   success: boolean;
   deals: T;
-  error?: string;
+  error?: string; // Changed from message to error
   totalResults?: number;
-  message?: string;
 }

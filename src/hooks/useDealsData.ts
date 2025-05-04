@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { fetchDealsFromAllPlatforms } from "@/utils/api";
 import { toast } from "sonner";
-import { Deal } from "@/types/deals";
+import { Deal, ApiResponse } from "@/types/deals";
 
 export function useDealsData() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -20,7 +20,7 @@ export function useDealsData() {
         setDeals(response.deals);
       } else {
         toast.error("Failed to fetch deals", {
-          description: response.message || "Please try again later."
+          description: response.error || "Please try again later."
         });
       }
     } catch (error) {
@@ -66,7 +66,7 @@ export function useDealsData() {
         setDeals(response.deals);
       } else {
         toast.error("Failed to fetch deals", {
-          description: response.message || "Please try again later."
+          description: response.error || "Please try again later."
         });
       }
     } catch (error) {

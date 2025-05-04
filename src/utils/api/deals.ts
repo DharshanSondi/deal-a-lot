@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface ApiResponse {
   success: boolean;
   deals: Deal[];
-  error?: string;
+  error?: string;  // Changed from message to error
 }
 
 // This function fetches real deals from our edge function that aggregates deals from multiple platforms
