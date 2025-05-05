@@ -5,16 +5,16 @@ project_id = "rdthioybiyrnhfynxxpx"
 enabled = true
 port = 54321
 schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
 [db]
 port = 54322
-shadow_port = 54320
-major_version = 15
 
 [studio]
 enabled = true
 port = 54323
-api_url = "http://localhost:54321"
+api_url = "http://localhost"
 
 [inbucket]
 enabled = true
@@ -27,6 +27,17 @@ enabled = true
 enabled = true
 site_url = "http://localhost:3000"
 
-[functions]
+[analytics]
+enabled = false
+
+[experimental]
+postgres_search_path = ["public", "extensions"]
+multisite = false
+postgres_storage = false
+postgres_functions = false
+
 [functions.get-deals]
+verify_jwt = false
+
+[functions.get-flipkart-offers]
 verify_jwt = false

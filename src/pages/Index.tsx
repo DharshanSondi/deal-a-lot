@@ -6,6 +6,8 @@ import { DealCard, DealProps } from "@/components/ui/deal-card";
 import { Navbar } from "@/components/ui/navbar";
 import { Search, ArrowRight, Tag, BarChart3, ShoppingBag, TrendingUp } from "lucide-react";
 import { mockDeals } from "@/data/mock-deals";
+import { FlipkartOffers } from "@/components/offers/FlipkartOffers";
+import { OfferType } from "@/hooks/useFlipkartOffers";
 
 export default function Index() {
   const [trendingDeals, setTrendingDeals] = useState<DealProps[]>([]);
@@ -98,8 +100,16 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Real-Time Flipkart Offers */}
+      <FlipkartOffers 
+        title="Flipkart Deals of the Day" 
+        description="Limited-time hot picks with great discounts from Flipkart" 
+        offerType={OfferType.DEALS_OF_THE_DAY}
+        limit={4}
+      />
+
       {/* Features Section */}
-      <section className="py-16 bg-secondary/50">
+      <section className="py-16">
         <div className="container mx-auto max-w-6xl px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">Why Choose DiscountHub?</h2>
@@ -141,6 +151,14 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* All Flipkart Offers Section */}
+      <FlipkartOffers 
+        title="Current Flipkart Offers" 
+        description="Best ongoing offers from Flipkart updated in real-time" 
+        offerType={OfferType.ALL}
+        limit={4}
+      />
 
       {/* Trending Deals Section */}
       <section className="py-16">
