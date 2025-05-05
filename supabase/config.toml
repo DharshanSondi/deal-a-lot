@@ -41,3 +41,10 @@ verify_jwt = false
 
 [functions.get-flipkart-offers]
 verify_jwt = false
+
+[functions.flipkart-all]
+verify_jwt = false
+
+[functions.flipkart-dotd]
+verify_jwt = false
+

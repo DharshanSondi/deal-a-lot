@@ -1,139 +1,144 @@
 
-// Supabase Edge Function: Get Flipkart Offers
-// This function fetches real-time offers from Flipkart's API endpoints
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// CORS headers to allow cross-origin requests
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Define endpoints for different offer types
-const ENDPOINTS = {
-  ALL_OFFERS: "https://affiliate-api.flipkart.net/affiliate/offers/v1/all/json",
-  DEALS_OF_THE_DAY: "https://affiliate-api.flipkart.net/affiliate/offers/v1/dotd/json"
-};
+// Required Flipkart API headers
+const FLIPKART_AFFILIATE_ID = Deno.env.get("FLIPKART_AFFILIATE_ID") || "";
+const FLIPKART_AFFILIATE_TOKEN = Deno.env.get("FLIPKART_AFFILIATE_TOKEN") || "";
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      headers: corsHeaders,
-      status: 200,
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Parse request body to determine which endpoint to use
-    // Updated to get parameters from request body instead of URL query
+    // Parse the request body to get the type of offers to fetch
     const { type = "all" } = await req.json();
     
-    // Select the appropriate endpoint
-    const apiEndpoint = type === "dotd" 
-      ? ENDPOINTS.DEALS_OF_THE_DAY 
-      : ENDPOINTS.ALL_OFFERS;
+    // Determine which endpoint to call based on the offer type
+    const endpoint = type === "dotd" 
+      ? "https://affiliate-api.flipkart.net/affiliate/offers/v1/dotd/json"
+      : "https://affiliate-api.flipkart.net/affiliate/offers/v1/all/json";
     
-    console.log(`Fetching Flipkart offers from: ${apiEndpoint}`);
+    console.log(`Fetching Flipkart offers from: ${endpoint}`);
+
+    if (!FLIPKART_AFFILIATE_ID || !FLIPKART_AFFILIATE_TOKEN) {
+      throw new Error("Missing Flipkart affiliate credentials");
+    }
+
+    const res = await fetch(endpoint, {
+      headers: {
+        "Fk-Affiliate-Id": FLIPKART_AFFILIATE_ID,
+        "Fk-Affiliate-Token": FLIPKART_AFFILIATE_TOKEN,
+        "Accept": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Flipkart API returned ${res.status}: ${await res.text()}`);
+    }
+
+    const data = await res.json();
     
-    // Fetch data from Flipkart API
-    const response = await fetch(apiEndpoint);
-    const data = await response.json();
-    
-    // Process the data to match our app's format
-    const processedDeals = processFlipkartOffers(data);
+    // Transform Flipkart API response based on offer type
+    const deals = type === "dotd" 
+      ? transformDotdOffers(data)
+      : transformAllOffers(data);
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
-        deals: processedDeals
+        deals,
       }),
-      {
+      { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       }
     );
   } catch (error) {
-    console.error(`Error fetching Flipkart offers:`, error);
+    console.error("Error fetching Flipkart offers:", error);
     
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: false,
-        error: error.message || "Failed to fetch offers from Flipkart",
-        deals: [] 
+        error: error.message,
+        deals: [],
       }),
-      {
+      { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
+        status: 200, // Return 200 but with error in payload for better client handling
       }
     );
   }
 });
 
-// Function to transform Flipkart API response to our app's deal format
-function processFlipkartOffers(data) {
+// Helper function to transform all offers
+function transformAllOffers(data: any): any[] {
   try {
-    if (!data || !data.allOffersList) {
+    if (!data.allOffersList) {
       return [];
     }
-    
-    return data.allOffersList.map(offer => {
-      // Extract relevant information from the offer
-      const title = offer.title || "Flipkart Offer";
-      const description = offer.description || "";
-      const imageUrl = offer.imageUrls?.[0]?.url || "https://rukminim2.flixcart.com/www/300/300/promos/24/06/2020/d1e8a4f1-265a-4e06-b18a-621a8830a234.png";
-      const externalUrl = offer.url || "";
-      
-      // Extract price information if available
-      const originalPriceMatch = description.match(/MRP:?\s*(?:Rs\.|₹)?(\d+(?:,\d+)*)/i);
-      const discountedPriceMatch = description.match(/Price:?\s*(?:Rs\.|₹)?(\d+(?:,\d+)*)/i);
-      const discountPercentageMatch = description.match(/(\d+)%\s*(?:OFF|discount)/i);
-      
-      // Parse prices and calculate discount if not explicitly provided
-      let originalPrice = originalPriceMatch ? parseInt(originalPriceMatch[1].replace(/,/g, '')) : 0;
-      let discountedPrice = discountedPriceMatch ? parseInt(discountedPriceMatch[1].replace(/,/g, '')) : 0;
-      let discountPercentage = discountPercentageMatch ? parseInt(discountPercentageMatch[1]) : 0;
-      
-      // If we have both prices but no percentage, calculate it
-      if (originalPrice && discountedPrice && !discountPercentage) {
-        discountPercentage = Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
-      }
-      
-      // If we have percentage and one price, calculate the other
-      if (discountPercentage && originalPrice && !discountedPrice) {
-        discountedPrice = Math.round(originalPrice * (1 - discountPercentage / 100));
-      } else if (discountPercentage && discountedPrice && !originalPrice) {
-        originalPrice = Math.round(discountedPrice / (1 - discountPercentage / 100));
-      }
-      
-      // If we still don't have valid prices, set default values
-      if (!originalPrice || !discountedPrice) {
-        originalPrice = 1000;
-        discountPercentage = 20;
-        discountedPrice = 800;
-      }
 
-      // Format into our app's deal structure
+    return data.allOffersList.map((offer: any, index: number) => {
+      const originalPrice = parseFloat(offer.price) || 1000;
+      const discountPercentage = parseFloat(offer.discountPercentage) || 10;
+      const discountedPrice = Math.round(originalPrice * (1 - discountPercentage / 100));
+      
       return {
-        id: `flipkart-${Math.random().toString(36).substring(2, 10)}`,
-        title,
-        description,
+        id: `flipkart-${offer.offerId || index}-${Date.now()}`,
+        title: offer.title || "Flipkart Offer",
+        description: offer.description || "",
         originalPrice,
         discountedPrice,
         discountPercentage,
-        imageUrl,
-        platform: 'flipkart',
-        externalUrl,
-        rating: 4.2 + Math.random() * 0.7, // Random rating between 4.2 and 4.9
-        ratingCount: Math.floor(100 + Math.random() * 900), // Random rating count between 100 and 999
-        category: offer.category || "general",
-        isNew: Math.random() > 0.7,
-        isTrending: Math.random() > 0.5,
+        imageUrl: offer.imageUrl || "https://via.placeholder.com/300x300?text=Flipkart+Offer",
+        platform: "flipkart",
+        externalUrl: offer.url || "",
+        rating: 4.2,
+        category: offer.category || "General",
       };
     });
   } catch (error) {
-    console.error("Error processing Flipkart offers:", error);
+    console.error("Error transforming all offers:", error);
+    return [];
+  }
+}
+
+// Helper function to transform deals of the day
+function transformDotdOffers(data: any): any[] {
+  try {
+    if (!data.dotdList) {
+      return [];
+    }
+
+    return data.dotdList.map((offer: any, index: number) => {
+      const originalPrice = parseFloat(offer.price) || 1000;
+      const discountPercentage = parseFloat(offer.discountPercentage) || 15;
+      const discountedPrice = Math.round(originalPrice * (1 - discountPercentage / 100));
+      
+      return {
+        id: `flipkart-dotd-${offer.offerId || index}-${Date.now()}`,
+        title: offer.title || "Flipkart Deal of the Day",
+        description: offer.description || "",
+        originalPrice,
+        discountedPrice,
+        discountPercentage,
+        imageUrl: offer.imageUrl || "https://via.placeholder.com/300x300?text=Flipkart+Deal",
+        platform: "flipkart",
+        externalUrl: offer.url || "",
+        rating: 4.5,
+        category: "Deals of the Day",
+        isNew: true,
+        isTrending: true,
+      };
+    });
+  } catch (error) {
+    console.error("Error transforming deals of the day:", error);
     return [];
   }
 }
