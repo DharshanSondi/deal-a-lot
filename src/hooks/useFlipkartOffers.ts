@@ -20,8 +20,9 @@ export function useFlipkartOffers(offerType: OfferType = OfferType.ALL, limit: n
   const fetchOffers = async () => {
     setIsLoading(true);
     try {
+      // Fixed by using params property instead of query
       const { data, error } = await supabase.functions.invoke("get-flipkart-offers", {
-        query: { type: offerType }
+        body: { type: offerType }
       });
 
       if (error) {

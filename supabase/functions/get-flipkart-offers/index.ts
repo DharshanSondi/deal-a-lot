@@ -26,12 +26,12 @@ serve(async (req) => {
   }
 
   try {
-    // Parse request to determine which endpoint to use
-    const url = new URL(req.url);
-    const offerType = url.searchParams.get("type") || "all";
+    // Parse request body to determine which endpoint to use
+    // Updated to get parameters from request body instead of URL query
+    const { type = "all" } = await req.json();
     
     // Select the appropriate endpoint
-    const apiEndpoint = offerType === "dotd" 
+    const apiEndpoint = type === "dotd" 
       ? ENDPOINTS.DEALS_OF_THE_DAY 
       : ENDPOINTS.ALL_OFFERS;
     
