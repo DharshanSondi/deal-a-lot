@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Check, Mail } from "lucide-react";
 
 export function SubscribeForm() {
@@ -17,6 +17,7 @@ export function SubscribeForm() {
       toast({
         title: "Invalid email",
         description: "Please enter a valid email address",
+        variant: "destructive"
       });
       return;
     }
@@ -24,29 +25,37 @@ export function SubscribeForm() {
     setIsSubmitting(true);
     
     // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      setEmail("");
+    try {
+      // In a real app, this would be an API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Save subscription to localStorage
-      try {
-        const subscriptions = JSON.parse(localStorage.getItem("subscriptions") || "[]");
-        subscriptions.push({ email, date: new Date().toISOString() });
-        localStorage.setItem("subscriptions", JSON.stringify(subscriptions));
-      } catch (error) {
-        console.error("Error saving subscription:", error);
-      }
+      const subscriptions = JSON.parse(localStorage.getItem("subscriptions") || "[]");
+      subscriptions.push({ email, date: new Date().toISOString() });
+      localStorage.setItem("subscriptions", JSON.stringify(subscriptions));
+      
+      setIsSuccess(true);
+      setEmail("");
       
       toast({
         title: "Subscribed successfully!",
         description: "You'll now receive our deal alerts and newsletters",
       });
       
+      // Reset success state after a delay
       setTimeout(() => {
         setIsSuccess(false);
       }, 3000);
-    }, 1500);
+    } catch (error) {
+      console.error("Error saving subscription:", error);
+      toast({
+        title: "Subscription failed",
+        description: "Please try again later",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -69,6 +78,7 @@ export function SubscribeForm() {
             onChange={(e) => setEmail(e.target.value)}
             disabled={isSubmitting || isSuccess}
             className="w-full pr-10"
+            required
           />
           {isSuccess && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">

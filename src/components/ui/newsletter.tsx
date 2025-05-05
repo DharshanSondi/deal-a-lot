@@ -36,15 +36,9 @@ export function Newsletter({
     
     setIsSubmitting(true);
     
-    // Simulate API call
     try {
       // In a real app, this would be an API call to your newsletter service
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setIsSuccess(true);
-      toast.success("Thank you for subscribing!", {
-        description: "You'll start receiving our newsletter soon.",
-      });
       
       // Store subscription in localStorage for persistence
       const subscribers = JSON.parse(localStorage.getItem("newsletter-subscribers") || "[]");
@@ -52,6 +46,11 @@ export function Newsletter({
         subscribers.push(email);
         localStorage.setItem("newsletter-subscribers", JSON.stringify(subscribers));
       }
+      
+      setIsSuccess(true);
+      toast.success("Thank you for subscribing!", {
+        description: "You'll start receiving our newsletter soon.",
+      });
       
       setEmail("");
     } catch (error) {

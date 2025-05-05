@@ -5,14 +5,17 @@ import { toast } from "sonner";
 
 export function NewsletterSection() {
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !email.includes('@')) {
-      toast("Please enter a valid email address");
+      toast.error("Please enter a valid email address");
       return;
     }
+    
+    setIsSubmitting(true);
     
     // Save subscription to localStorage (in a real app, this would be an API call)
     try {
@@ -20,14 +23,16 @@ export function NewsletterSection() {
       subscriptions.push({ email, date: new Date().toISOString() });
       localStorage.setItem("subscriptions", JSON.stringify(subscriptions));
       
-      toast("Subscribed successfully!", {
+      toast.success("Subscribed successfully!", {
         description: "You'll now receive our deal alerts and newsletters"
       });
       
       setEmail("");
+      setIsSubmitting(false);
     } catch (error) {
       console.error("Error saving subscription:", error);
-      toast("Failed to subscribe. Please try again later.");
+      toast.error("Failed to subscribe. Please try again later.");
+      setIsSubmitting(false);
     }
   };
   
@@ -50,8 +55,15 @@ export function NewsletterSection() {
                   className="flex-grow px-4 py-3 rounded-full border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
-                <Button type="submit" className="rounded-full">Subscribe</Button>
+                <Button 
+                  type="submit" 
+                  className="rounded-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Subscribing..." : "Subscribe"}
+                </Button>
               </form>
             </div>
             <div className="hidden md:block relative">

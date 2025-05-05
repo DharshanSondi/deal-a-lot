@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Search, ArrowRight, Tag, BarChart3, ShoppingBag, TrendingUp } from "luc
 import { mockDeals } from "@/data/mock-deals";
 import { FlipkartOffers } from "@/components/offers/FlipkartOffers";
 import { OfferType } from "@/hooks/useFlipkartOffers";
+import { NewsletterSection } from "@/components/home/NewsletterSection";
 
 export default function Index() {
   const [trendingDeals, setTrendingDeals] = useState<DealProps[]>([]);
@@ -225,38 +225,7 @@ export default function Index() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-16">
-        <div className="container mx-auto max-w-6xl px-4">
-          <div className="glass rounded-2xl shadow-elegant overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="p-8 md:p-10 lg:p-12 flex flex-col justify-center">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                  Stay Updated with the Best Deals
-                </h2>
-                <p className="text-muted-foreground mb-6">
-                  Subscribe to our newsletter and never miss out on the latest deals and discounts.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="flex-grow px-4 py-3 rounded-full border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <Button className="rounded-full">Subscribe</Button>
-                </div>
-              </div>
-              <div className="hidden md:block relative">
-                <img
-                  src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
-                  alt="Newsletter"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <NewsletterSection />
 
       {/* Footer */}
       <footer className="py-12 bg-card">
