@@ -7,9 +7,38 @@ This guide explains the structure of the DiscountHub codebase, detailing each fo
 
 DiscountHub is a deal aggregator platform that collects and displays the best deals from various e-commerce platforms like Amazon, Flipkart, and Meesho. The application is built using React, TypeScript, Vite, and Tailwind CSS with a Supabase backend for authentication and data management.
 
+## Frontend and Backend Architecture
+
+DiscountHub uses a modern architecture with a clear separation between frontend and backend:
+
+### Frontend (Client-Side)
+
+The frontend code is primarily located in the `/src` directory. It consists of:
+
+- React components for the user interface
+- TypeScript for type-safe development
+- Tailwind CSS for styling
+- React Router for navigation
+- Tanstack Query for data fetching and caching
+
+### Backend (Server-Side)
+
+DiscountHub uses a serverless architecture with Supabase as the backend:
+
+1. **Supabase Backend**:
+   - Located in the `/supabase` directory
+   - Provides authentication, database, and serverless functions
+   - Edge Functions (in `/supabase/functions`) handle server-side logic
+
+2. **Connection Between Frontend and Backend**:
+   - The frontend communicates with Supabase using the Supabase client
+   - The client is configured in `/src/integrations/supabase/client.ts`
+   - API endpoints are accessed through Supabase Edge Functions
+   - Data flow: React components → API hooks → Supabase client → Supabase backend
+
 ## Folder Structure
 
-### `/src` - Main Source Directory
+### `/src` - Main Source Directory (Frontend)
 
 The `/src` directory contains all the application source code.
 
@@ -88,6 +117,8 @@ The `/src` directory contains all the application source code.
 - **Purpose**: Custom React hooks for reusable stateful logic.
 - **Contents**:
   - `use-toast.ts`: Hook for displaying toast notifications
+  - `useFlipkartOffers.ts`: Hook for fetching Flipkart offers data
+  - `useDealsData.ts`: Hook for managing deals data
 
 #### `/src/integrations` - External Service Integrations
 
@@ -95,6 +126,7 @@ The `/src` directory contains all the application source code.
 - **Subfolders**:
   - `/supabase`: Supabase integration
     - `client.ts`: Supabase client configuration
+    - `types.ts`: TypeScript definitions for Supabase schema
 
 #### `/src/lib` - Utility Libraries
 
@@ -136,11 +168,6 @@ The `/src` directory contains all the application source code.
     - `index.ts`: API base setup
     - `mock-deals.ts`: Functions for working with mock deal data
 
-### `/public` - Public Assets
-
-- **Purpose**: Static files that will be served directly by the web server.
-- **Contents**: Favicon, robots.txt, and other public-facing assets.
-
 ### `/supabase` - Supabase Backend
 
 - **Purpose**: Contains Supabase configuration and serverless functions.
@@ -150,6 +177,29 @@ The `/src` directory contains all the application source code.
     - `/flipkart-dotd`: Edge function for fetching Flipkart deals of the day
     - `/get-flipkart-offers`: Combined edge function for Flipkart offers
 
+### Frontend-Backend Integration Points
+
+1. **Authentication Flow**:
+   - Frontend components in `/src/components/auth` use authentication hooks
+   - Authentication service in `/src/components/auth/services/auth-service.ts` communicates with Supabase
+   - User data is stored in Supabase's `auth` schema
+
+2. **Data Fetching**:
+   - Custom hooks in `/src/hooks` (like `useFlipkartOffers.ts` and `useDealsData.ts`) fetch data
+   - These hooks use the Supabase client to communicate with Edge Functions
+   - Edge Functions in `/supabase/functions` handle external API calls and data processing
+
+3. **API Layer**:
+   - API utilities in `/src/utils/api` provide an abstraction layer for API calls
+   - These utilities use the Supabase client to invoke Edge Functions
+   - Edge Functions return processed data to the frontend
+
+4. **User Data Flow**:
+   - User actions trigger API calls through components and hooks
+   - Data flows through the Supabase client to the appropriate Edge Function
+   - Edge Functions process the request and return data to the frontend
+   - Components update based on returned data
+
 ### Configuration Files
 
 - `vite.config.ts`: Vite configuration
@@ -157,7 +207,7 @@ The `/src` directory contains all the application source code.
 - `RENDER_DEPLOY_GUIDE.md`: Guide for deploying the application to Render
 - `index.html`: Main HTML entry point
 - `frontend/index.html`: Frontend HTML entry point for development
-- `README.md`: Project overview and general information
+- `supabase/config.toml`: Configuration for Supabase Edge Functions
 
 ## Development Guidelines
 
@@ -171,6 +221,7 @@ The `/src` directory contains all the application source code.
 
 - Local component state is managed with React's `useState` and `useEffect`
 - Authentication state is managed through Supabase's authentication system
+- Global state management is handled through contexts where needed
 
 ### Styling
 
@@ -182,6 +233,7 @@ The `/src` directory contains all the application source code.
 
 - External API calls are proxied through Supabase Edge Functions
 - Mock data is used as a fallback when API calls fail
+- Data fetching is encapsulated in custom hooks
 
 ### Deployment
 

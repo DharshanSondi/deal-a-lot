@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Check, Mail } from "lucide-react";
 
 export function SubscribeForm() {
   const [email, setEmail] = useState("");
@@ -13,45 +12,38 @@ export function SubscribeForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !email.includes('@')) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address",
-        variant: "destructive"
-      });
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error("Please enter a valid email address");
       return;
     }
     
     setIsSubmitting(true);
     
-    // Simulate API call
     try {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // In a real app, this would be an API call to your newsletter service
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Save subscription to localStorage
-      const subscriptions = JSON.parse(localStorage.getItem("subscriptions") || "[]");
-      subscriptions.push({ email, date: new Date().toISOString() });
-      localStorage.setItem("subscriptions", JSON.stringify(subscriptions));
+      // Store subscription in localStorage for persistence
+      const subscribers = JSON.parse(localStorage.getItem("newsletter-subscribers") || "[]");
+      if (!subscribers.includes(email)) {
+        subscribers.push(email);
+        localStorage.setItem("newsletter-subscribers", JSON.stringify(subscribers));
+      }
       
       setIsSuccess(true);
-      setEmail("");
-      
-      toast({
-        title: "Subscribed successfully!",
-        description: "You'll now receive our deal alerts and newsletters",
+      toast.success("Thank you for subscribing!", {
+        description: "You'll start receiving our newsletter soon.",
       });
       
-      // Reset success state after a delay
-      setTimeout(() => {
-        setIsSuccess(false);
-      }, 3000);
+      setEmail("");
     } catch (error) {
-      console.error("Error saving subscription:", error);
-      toast({
-        title: "Subscription failed",
-        description: "Please try again later",
-        variant: "destructive"
+      toast.error("Failed to subscribe", {
+        description: "Please try again later.",
       });
     } finally {
       setIsSubmitting(false);
@@ -59,46 +51,40 @@ export function SubscribeForm() {
   };
 
   return (
-    <div className="glass rounded-xl p-6 shadow-elegant">
-      <div className="flex items-center mb-4 text-primary">
-        <Mail className="h-5 w-5 mr-2" />
-        <h3 className="font-semibold text-lg">Get Deal Alerts</h3>
-      </div>
-      
-      <p className="text-sm text-muted-foreground mb-4">
-        Subscribe to receive personalized deal alerts, price drop notifications, and exclusive offers.
-      </p>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <Input
-            type="email"
-            placeholder="Enter your email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isSubmitting || isSuccess}
-            className="w-full pr-10"
-            required
-          />
-          {isSuccess && (
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
-              <Check className="h-5 w-5" />
-            </div>
-          )}
-        </div>
+    <div className="w-full">
+      <div className="max-w-md mx-auto">
+        <h3 className="text-xl font-semibold mb-2">Subscribe to Our Newsletter</h3>
+        <p className="text-muted-foreground mb-4">Get the latest deals and discounts right in your inbox</p>
         
-        <Button 
-          type="submit" 
-          className="w-full"
-          disabled={isSubmitting || isSuccess}
-        >
-          {isSubmitting ? "Subscribing..." : isSuccess ? "Subscribed!" : "Subscribe"}
-        </Button>
+        {isSuccess ? (
+          <div className="bg-primary/10 text-primary p-4 rounded-lg">
+            <p className="font-medium">Thank you for subscribing!</p>
+            <p className="text-sm mt-1">You'll start receiving our newsletter soon.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+            <Input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex-grow"
+              required
+            />
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="rounded-full"
+            >
+              {isSubmitting ? "Subscribing..." : "Subscribe"}
+            </Button>
+          </form>
+        )}
         
-        <p className="text-xs text-muted-foreground text-center mt-2">
-          We respect your privacy and will never share your email.
+        <p className="text-xs text-muted-foreground mt-3">
+          By subscribing, you agree to our <a href="#" className="underline hover:text-primary">Privacy Policy</a> and consent to receive updates from us.
         </p>
-      </form>
+      </div>
     </div>
   );
 }
