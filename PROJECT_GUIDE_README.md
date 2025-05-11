@@ -5,7 +5,7 @@ This guide explains the structure of the DiscountHub codebase, detailing each fo
 
 ## Project Overview
 
-DiscountHub is a deal aggregator platform that collects and displays the best deals from various e-commerce platforms like Amazon, Flipkart, and Meesho. The application is built using React, TypeScript, Vite, and Tailwind CSS with a Supabase backend for authentication and data management.
+DiscountHub is a deal aggregator platform that collects and displays the best deals from various e-commerce platforms like Amazon, Meesho, and others. The application is built using React, TypeScript, Vite, and Tailwind CSS with a Supabase backend for authentication and data management.
 
 ## Frontend and Backend Architecture
 
@@ -84,9 +84,6 @@ The `/src` directory contains all the application source code.
     - `HeroSection.tsx`: Hero/banner section of the homepage
     - `NewsletterSection.tsx`: Newsletter subscription section
 
-  - `/offers`: Offer-related components
-    - `FlipkartOffers.tsx`: Component for displaying Flipkart offers
-
   - `/onboarding`: User onboarding components
     - `TourGuide.tsx`: Tour guide for new users
 
@@ -117,7 +114,6 @@ The `/src` directory contains all the application source code.
 - **Purpose**: Custom React hooks for reusable stateful logic.
 - **Contents**:
   - `use-toast.ts`: Hook for displaying toast notifications
-  - `useFlipkartOffers.ts`: Hook for fetching Flipkart offers data
   - `useDealsData.ts`: Hook for managing deals data
 
 #### `/src/integrations` - External Service Integrations
@@ -173,9 +169,7 @@ The `/src` directory contains all the application source code.
 - **Purpose**: Contains Supabase configuration and serverless functions.
 - **Subfolders**:
   - `/functions`: Supabase Edge Functions
-    - `/flipkart-all`: Edge function for fetching all Flipkart offers
-    - `/flipkart-dotd`: Edge function for fetching Flipkart deals of the day
-    - `/get-flipkart-offers`: Combined edge function for Flipkart offers
+    - `/get-deals`: Edge function for fetching all deals
 
 ### Frontend-Backend Integration Points
 
@@ -185,7 +179,7 @@ The `/src` directory contains all the application source code.
    - User data is stored in Supabase's `auth` schema
 
 2. **Data Fetching**:
-   - Custom hooks in `/src/hooks` (like `useFlipkartOffers.ts` and `useDealsData.ts`) fetch data
+   - Custom hooks in `/src/hooks` (like `useDealsData.ts`) fetch data
    - These hooks use the Supabase client to communicate with Edge Functions
    - Edge Functions in `/supabase/functions` handle external API calls and data processing
 

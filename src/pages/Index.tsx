@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,8 +6,6 @@ import { DealCard, DealProps } from "@/components/ui/deal-card";
 import { Navbar } from "@/components/ui/navbar";
 import { Search, ArrowRight, Tag, BarChart3, ShoppingBag, TrendingUp } from "lucide-react";
 import { mockDeals } from "@/data/mock-deals";
-import { FlipkartOffers } from "@/components/offers/FlipkartOffers";
-import { OfferType } from "@/hooks/useFlipkartOffers";
 import { NewsletterSection } from "@/components/home/NewsletterSection";
 
 export default function Index() {
@@ -18,8 +17,8 @@ export default function Index() {
 
   useEffect(() => {
     // In a real app, this would be fetched from an API
-    const trending = mockDeals.filter(deal => deal.isTrending).slice(0, 4);
-    const newArrivals = mockDeals.filter(deal => deal.isNew).slice(0, 4);
+    const trending = mockDeals.filter(deal => deal.isTrending).slice(0, 8);
+    const newArrivals = mockDeals.filter(deal => deal.isNew).slice(0, 8);
 
     setTimeout(() => {
       setTrendingDeals(trending);
@@ -52,7 +51,7 @@ export default function Index() {
                 Find the <span className="text-primary">Best Deals</span> in One Place
               </h1>
               <p className="text-lg text-muted-foreground md:text-xl max-w-md">
-                DiscountHub aggregates the best offers from Amazon, Flipkart, Meesho, and more to save you time and money.
+                DiscountHub aggregates the best offers from Amazon, Meesho, and more to save you time and money.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="rounded-full" asChild>
@@ -100,14 +99,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Real-Time Flipkart Offers */}
-      <FlipkartOffers 
-        title="Flipkart Deals of the Day" 
-        description="Limited-time hot picks with great discounts from Flipkart" 
-        offerType={OfferType.DEALS_OF_THE_DAY}
-        limit={4}
-      />
-
       {/* Features Section */}
       <section className="py-16">
         <div className="container mx-auto max-w-6xl px-4">
@@ -125,7 +116,7 @@ export default function Index() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Best Deals Aggregated</h3>
               <p className="text-muted-foreground">
-                We collect the top deals from Amazon, Flipkart, Meesho, and other e-commerce sites.
+                We collect the top deals from Amazon, Meesho, and other e-commerce sites.
               </p>
             </div>
             
@@ -151,14 +142,6 @@ export default function Index() {
           </div>
         </div>
       </section>
-
-      {/* All Flipkart Offers Section */}
-      <FlipkartOffers 
-        title="Current Flipkart Offers" 
-        description="Best ongoing offers from Flipkart updated in real-time" 
-        offerType={OfferType.ALL}
-        limit={4}
-      />
 
       {/* Trending Deals Section */}
       <section className="py-16">
