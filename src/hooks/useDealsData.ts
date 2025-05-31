@@ -1,37 +1,27 @@
 
 import { useState, useEffect } from "react";
-import { fetchDealsFromAllPlatforms } from "@/utils/api";
 import { toast } from "sonner";
-import { Deal, ApiResponse } from "@/types/deals";
+import { Deal } from "@/types/deals";
+import { useEnhancedDeals } from "./useEnhancedDeals";
 
 export function useDealsData() {
+  const {
+    deals: enhancedDeals,
+    isLoading: enhancedLoading,
+    fetchDeals,
+    forceRefresh
+  } = useEnhancedDeals({
+    enableRealTime: true,
+    refreshInterval: 30
+  });
+
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchDeals();
-  }, []);
-
-  const fetchDeals = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetchDealsFromAllPlatforms("", 100);
-      if (response.success) {
-        setDeals(response.deals);
-      } else {
-        toast.error("Failed to fetch deals", {
-          description: response.error || "Please try again later."
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching deals:", error);
-      toast.error("Failed to fetch deals", {
-        description: "Please try again later."
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setDeals(enhancedDeals);
+    setIsLoading(enhancedLoading);
+  }, [enhancedDeals, enhancedLoading]);
 
   const fetchFilteredDeals = async (
     searchQuery: string,
@@ -40,38 +30,46 @@ export function useDealsData() {
   ) => {
     setIsLoading(true);
     
-    // Determine if any platform is selected
-    const activePlatforms = Object.entries(selectedPlatforms)
-      .filter(([_, isSelected]) => isSelected)
-      .map(([platform]) => platform);
-    
-    // Determine if any category is selected
-    const activeCategories = Object.entries(selectedCategories)
-      .filter(([_, isSelected]) => isSelected)
-      .map(([category]) => category);
-    
-    // Select first platform/category if multiple are selected (API only accepts one)
-    const platformFilter = activePlatforms.length > 0 ? activePlatforms[0] : "";
-    const categoryFilter = activeCategories.length > 0 ? activeCategories[0] : "";
-    
     try {
-      const response = await fetchDealsFromAllPlatforms(
-        searchQuery, 
-        100, 
-        platformFilter, 
-        categoryFilter
-      );
+      // Filter the enhanced deals based on search and filters
+      let filteredDeals = enhancedDeals;
       
-      if (response.success) {
-        setDeals(response.deals);
-      } else {
-        toast.error("Failed to fetch deals", {
-          description: response.error || "Please try again later."
-        });
+      // Apply search filter
+      if (searchQuery) {
+        filteredDeals = filteredDeals.filter(deal => 
+          deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (deal.description && deal.description.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
       }
+      
+      // Apply platform filter
+      const activePlatforms = Object.entries(selectedPlatforms)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([platform]) => platform);
+        
+      if (activePlatforms.length > 0) {
+        filteredDeals = filteredDeals.filter(deal => activePlatforms.includes(deal.platform));
+      }
+      
+      // Apply category filter
+      const activeCategories = Object.entries(selectedCategories)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([category]) => category);
+        
+      if (activeCategories.length > 0) {
+        filteredDeals = filteredDeals.filter(deal => 
+          deal.category && activeCategories.includes(deal.category.toLowerCase())
+        );
+      }
+      
+      setDeals(filteredDeals);
+      
+      toast.success("Deals filtered successfully", {
+        description: `Found ${filteredDeals.length} deals matching your criteria`
+      });
     } catch (error) {
-      console.error("Error fetching filtered deals:", error);
-      toast.error("Failed to fetch deals", {
+      console.error("Error filtering deals:", error);
+      toast.error("Failed to filter deals", {
         description: "Please try again later."
       });
     } finally {
@@ -79,5 +77,24 @@ export function useDealsData() {
     }
   };
 
-  return { deals, isLoading, fetchDeals, fetchFilteredDeals };
+  const refreshDeals = async () => {
+    try {
+      await forceRefresh();
+      toast.success("Deals refreshed", {
+        description: "Latest deals have been fetched from all sources"
+      });
+    } catch (error) {
+      console.error("Error refreshing deals:", error);
+      toast.error("Failed to refresh deals", {
+        description: "Please try again later."
+      });
+    }
+  };
+
+  return { 
+    deals, 
+    isLoading, 
+    fetchDeals: refreshDeals, 
+    fetchFilteredDeals 
+  };
 }

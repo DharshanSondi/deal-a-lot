@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,14 @@ import { Navbar } from "@/components/ui/navbar";
 import { Search, ArrowRight, Tag, BarChart3, ShoppingBag, TrendingUp } from "lucide-react";
 import { mockDeals } from "@/data/mock-deals";
 import { NewsletterSection } from "@/components/home/NewsletterSection";
+import { useEnhancedDeals } from "@/hooks/useEnhancedDeals";
 
 export default function Index() {
+  const { deals: enhancedDeals, isLoading: enhancedLoading } = useEnhancedDeals({
+    enableRealTime: true,
+    refreshInterval: 15 // More frequent updates for homepage
+  });
+
   const [trendingDeals, setTrendingDeals] = useState<DealProps[]>([]);
   const [newDeals, setNewDeals] = useState<DealProps[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -16,16 +21,15 @@ export default function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // In a real app, this would be fetched from an API
-    const trending = mockDeals.filter(deal => deal.isTrending).slice(0, 8);
-    const newArrivals = mockDeals.filter(deal => deal.isNew).slice(0, 8);
+    if (!enhancedLoading && enhancedDeals.length > 0) {
+      const trending = enhancedDeals.filter(deal => deal.isTrending).slice(0, 8);
+      const newArrivals = enhancedDeals.filter(deal => deal.isNew).slice(0, 8);
 
-    setTimeout(() => {
       setTrendingDeals(trending);
       setNewDeals(newArrivals);
       setLoaded(true);
-    }, 500);
-  }, []);
+    }
+  }, [enhancedDeals, enhancedLoading]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
